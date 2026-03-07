@@ -1,0 +1,87 @@
+Table users {
+  id int [pk, increment]
+  username varchar
+  email varchar [unique]
+  password_hash varchar
+  created_at timestamp
+}
+
+Table quiz {
+  id int [pk, increment]
+  title varchar
+  theme varchar
+  creator_id int
+  created_at timestamp
+}
+
+Table question {
+  id int [pk, increment]
+  quiz_id int
+  text text
+  question_type varchar
+  time_limit int
+}
+
+Table answer {
+  id int [pk, increment]
+  question_id int
+  text varchar
+  is_correct boolean
+}
+
+Table game_session {
+  id int [pk, increment]
+  quiz_id int
+  host_id int
+  game_pin int [unique]
+  status varchar
+  current_question_index int
+  question_started_at timestamp
+  created_at timestamp
+}
+
+Table player {
+  id int [pk, increment]
+  session_id int
+  nickname varchar
+  score int
+  joined_at timestamp
+  is_kicked boolean
+  indexes {
+    (session_id, nickname) [unique]  
+  }
+}
+
+Table session_question {
+  id int [pk, increment]
+  session_id int
+  question_id int
+  order_index int
+  indexes {
+    (session_id, order_index) [unique]
+  }
+}
+
+Table player_answer {
+  id int [pk, increment]
+  player_id int
+  question_id int
+  answer_id int
+  response_time int
+  score_awarded int
+  indexes {
+    (player_id, question_id) [unique] 
+  }
+}
+
+Ref: quiz.creator_id > users.id
+Ref: question.quiz_id > quiz.id
+Ref: answer.question_id > question.id
+Ref: game_session.quiz_id > quiz.id
+Ref: game_session.host_id > users.id
+Ref: player.session_id > game_session.id
+Ref: session_question.session_id > game_session.id
+Ref: session_question.question_id > question.id
+Ref: player_answer.player_id > player.id
+Ref: player_answer.question_id > question.id
+Ref: player_answer.answer_id > answer.id
