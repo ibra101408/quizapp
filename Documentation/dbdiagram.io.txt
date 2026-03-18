@@ -1,6 +1,8 @@
+https://dbdiagram.io/d/69ac863ba3f0aa31e128b219
+
 Table users {
   id int [pk, increment]
-  username varchar
+  username varchar [unique]
   email varchar [unique]
   password_hash varchar
   created_at timestamp
@@ -12,6 +14,7 @@ Table quiz {
   theme varchar
   creator_id int
   created_at timestamp
+  version varchar
 }
 
 Table question {
@@ -20,6 +23,7 @@ Table question {
   text text
   question_type varchar
   time_limit int
+  version varchar
 }
 
 Table answer {
@@ -27,6 +31,7 @@ Table answer {
   question_id int
   text varchar
   is_correct boolean
+  version varchar
 }
 
 Table game_session {
@@ -34,7 +39,7 @@ Table game_session {
   quiz_id int
   host_id int
   game_pin int [unique]
-  status varchar
+  status enum
   current_question_index int
   question_started_at timestamp
   created_at timestamp
@@ -42,23 +47,23 @@ Table game_session {
 
 Table player {
   id int [pk, increment]
-  session_id int
+  game_session_id int
   nickname varchar
   score int
   joined_at timestamp
   is_kicked boolean
   indexes {
-    (session_id, nickname) [unique]  
+    (game_session_id, nickname) [unique]  
   }
 }
 
 Table session_question {
   id int [pk, increment]
-  session_id int
+  game_session_id int
   question_id int
   order_index int
   indexes {
-    (session_id, order_index) [unique]
+    (game_session_id, order_index) [unique]
   }
 }
 
@@ -79,8 +84,8 @@ Ref: question.quiz_id > quiz.id
 Ref: answer.question_id > question.id
 Ref: game_session.quiz_id > quiz.id
 Ref: game_session.host_id > users.id
-Ref: player.session_id > game_session.id
-Ref: session_question.session_id > game_session.id
+Ref: player.game_session_id > game_session.id
+Ref: session_question.game_session_id > game_session.id
 Ref: session_question.question_id > question.id
 Ref: player_answer.player_id > player.id
 Ref: player_answer.question_id > question.id
