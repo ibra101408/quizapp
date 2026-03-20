@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - include:
+      file: changes/000-create-app-user.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/001-create-quizzes.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/002-create-questions.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/003-create-answers.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/004-seed-data.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/005-grant-app-user-permissions.yaml
+      relativeToChangelogFile: true

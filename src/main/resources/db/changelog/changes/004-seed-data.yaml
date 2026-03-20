@@ -1,0 +1,186 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-seed-data
+      author: team35
+      context: dev
+      changes:
+        - insert:
+            tableName: quizzes
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: title
+                  value: Java Basics
+              - column:
+                  name: description
+                  value: Introductory quiz on Java fundamentals
+              - column:
+                  name: created_at
+                  valueDate: now()
+
+        - insert:
+            tableName: questions
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: quiz_id
+                  value: 1
+              - column:
+                  name: text
+                  value: What is the size of an int in Java?
+              - column:
+                  name: order_index
+                  value: 1
+
+        - insert:
+            tableName: answers
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: question_id
+                  value: 1
+              - column:
+                  name: text
+                  value: 16 bits
+              - column:
+                  name: correct
+                  valueBoolean: false
+        - insert:
+            tableName: answers
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: question_id
+                  value: 1
+              - column:
+                  name: text
+                  value: 32 bits
+              - column:
+                  name: correct
+                  valueBoolean: true
+        - insert:
+            tableName: answers
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: question_id
+                  value: 1
+              - column:
+                  name: text
+                  value: 64 bits
+              - column:
+                  name: correct
+                  valueBoolean: false
+        - insert:
+            tableName: answers
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: question_id
+                  value: 1
+              - column:
+                  name: text
+                  value: 8 bits
+              - column:
+                  name: correct
+                  valueBoolean: false
+
+        - insert:
+            tableName: questions
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: quiz_id
+                  value: 1
+              - column:
+                  name: text
+                  value: Which keyword is used to prevent a class from being subclassed?
+              - column:
+                  name: order_index
+                  value: 2
+
+        - insert:
+            tableName: answers
+            columns:
+              - column:
+                  name: id
+                  value: 5
+              - column:
+                  name: question_id
+                  value: 2
+              - column:
+                  name: text
+                  value: static
+              - column:
+                  name: correct
+                  valueBoolean: false
+        - insert:
+            tableName: answers
+            columns:
+              - column:
+                  name: id
+                  value: 6
+              - column:
+                  name: question_id
+                  value: 2
+              - column:
+                  name: text
+                  value: abstract
+              - column:
+                  name: correct
+                  valueBoolean: false
+        - insert:
+            tableName: answers
+            columns:
+              - column:
+                  name: id
+                  value: 7
+              - column:
+                  name: question_id
+                  value: 2
+              - column:
+                  name: text
+                  value: final
+              - column:
+                  name: correct
+                  valueBoolean: true
+        - insert:
+            tableName: answers
+            columns:
+              - column:
+                  name: id
+                  value: 8
+              - column:
+                  name: question_id
+                  value: 2
+              - column:
+                  name: text
+                  value: sealed
+              - column:
+                  name: correct
+                  valueBoolean: false
+
+      rollback:
+        - delete:
+            tableName: answers
+            where: question_id IN (1, 2)
+        - delete:
+            tableName: questions
+            where: quiz_id = 1
+        - delete:
+            tableName: quizzes
+            where: id = 1

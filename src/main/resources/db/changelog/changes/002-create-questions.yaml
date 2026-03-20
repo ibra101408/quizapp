@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-questions
+      author: team35
+      changes:
+        - createTable:
+            tableName: questions
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: quiz_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_questions_quiz
+                    references: quizzes(id)
+              - column:
+                  name: text
+                  type: TEXT
+              - column:
+                  name: order_index
+                  type: INT
+      rollback:
+        - dropTable:
+            tableName: questions

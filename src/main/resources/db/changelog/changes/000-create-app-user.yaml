@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000-create-app-user
+      author: team35
+      changes:
+        - sql:
+            sql: CREATE USER quizapp_user WITH PASSWORD 'quizapp_password';
+        - sql:
+            sql: GRANT CONNECT ON DATABASE quizapp TO quizapp_user;
+        - sql:
+            sql: GRANT USAGE ON SCHEMA public TO quizapp_user;
+      rollback:
+        - sql:
+            sql: DROP USER IF EXISTS quizapp_user;

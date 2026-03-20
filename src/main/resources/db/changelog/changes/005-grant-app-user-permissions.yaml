@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-grant-app-user-permissions
+      author: team35
+      changes:
+        - sql:
+            sql: GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO quizapp_user;
+        - sql:
+            sql: GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO quizapp_user;
+      rollback:
+        - sql:
+            sql: REVOKE ALL ON ALL TABLES IN SCHEMA public FROM quizapp_user;
+        - sql:
+            sql: REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM quizapp_user;
