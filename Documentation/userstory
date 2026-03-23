@@ -1,0 +1,20 @@
+
+1. As a user I want to login by email/google
+1. As a user I want to be able to delete my account
+2. As a user I want to be able to make a quiz
+3. As a user I wnat to be able to choose number of answers
+4. As a user I want to be able to choose a time for each question
+5. As a user I want to be able to edit my quiz
+6. As a user I want to be able to delete my quiz
+7. As a user I want to add pictures for each quiestion
+8. As a user I want to save my quiz
+9. As a user I want to find my quiz from saved drafts
+10. As a user I want to be able to start a quiz
+11. As a user I wnat to see how many players are answered
+
+12. As a player I want to make a nickname
+13. As a player I want to join the session by scanning a qr code
+14. As a player I want to see remaining time for answer
+15. As a player I want to see scoarboard/leaderboard after question
+16. As a player I want to see the question on my device
+17. As a player I want to see the answers on my device
