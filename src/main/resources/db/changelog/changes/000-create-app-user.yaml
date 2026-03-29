@@ -4,7 +4,15 @@ databaseChangeLog:
       author: team35
       changes:
         - sql:
-            sql: CREATE USER quizapp_user WITH PASSWORD 'quizapp_password';
+            dbms: postgresql
+            splitStatements: false   # Prevents breaking the DO block
+            stripComments: false     # For dollar quoting
+            sql: |
+              DO $$BEGIN
+                IF NOT EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'quizapp_user') THEN
+                  CREATE USER quizapp_user WITH PASSWORD 'quizapp_password';
+                END IF;
+              END$$;
         - sql:
             sql: GRANT CONNECT ON DATABASE quizapp TO quizapp_user;
         - sql:

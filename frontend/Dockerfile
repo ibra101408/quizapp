@@ -19,6 +19,8 @@ RUN npm run build
 # Use a lightweight web server to serve the built React files
 FROM nginx:alpine
 
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Copy the built React files to Nginx's serving directory
 COPY --from=builder /app/build /usr/share/nginx/html
 
