@@ -15,7 +15,7 @@ public class LiquibaseConfig {
     @Value("${DB_ADMIN_USERNAME:postgres}")
     private String adminUsername;
 
-    @Value("${DB_ADMIN_PASSWORD:quizapp_password}")
+    @Value("${DB_ADMIN_PASSWORD:postgres}")
     private String adminPassword;
 
     @Bean
