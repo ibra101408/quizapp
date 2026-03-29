@@ -18,3 +18,12 @@ export async function logout() {
 export function getToken() {
   return localStorage.getItem("token");
 }
+
+export async function getCurrentUser() {
+  try {
+    const response = await axios.get(`${API_URL}/me`, { withCredentials: true });
+    return response.data;
+  } catch (error) {
+    return null;
+  }
+}
