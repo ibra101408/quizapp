@@ -28,7 +28,7 @@ public class SecurityConfig {
 
         if (googleClientId != null && !googleClientId.isBlank()) {
             http.oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("/api/auth/me", true)
+                .defaultSuccessUrl("http://localhost:3000/", true)
             );
         }
 
