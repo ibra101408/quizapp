@@ -19,7 +19,7 @@ jobs:
         env:
           POSTGRES_DB: quizapp_test
           POSTGRES_USER: quizapp_user
-          POSTGRES_PASSWORD: quizapp_pass
+          POSTGRES_PASSWORD: quizapp_password
         ports:
           - 5432:5432
         options: >-
@@ -43,7 +43,7 @@ jobs:
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/quizapp_test
           SPRING_DATASOURCE_USERNAME: quizapp_user
-          SPRING_DATASOURCE_PASSWORD: quizapp_pass
+          SPRING_DATASOURCE_PASSWORD: quizapp_password
         run: ./mvnw verify
 
       - name: Upload JAR artifact

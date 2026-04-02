@@ -4,6 +4,7 @@ const API_URL = "http://localhost:8080/api/auth";
 
 export async function login(email, password) {
   const response = await axios.post(`${API_URL}/login`, { email, password });
+  console.log("Login response:::", response.data); // Debug log
   return response.data; // expects { token: "..." }
 }
 export async function register(email, password) {

@@ -4,14 +4,34 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.team35.quizapp.dto.user.AuthResponse;
+import com.team35.quizapp.dto.user.LoginRequest;
+
+import lombok.RequiredArgsConstructor;
+import com.team35.quizapp.service.AuthService;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
+    private final AuthService authService;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> googleLogin(@RequestBody String googleToken) {
+        return ResponseEntity.ok(authService.loginWithGoogle(googleToken));
+    }
 
     // Returns the logged in user's info from Google
     @GetMapping("/me")

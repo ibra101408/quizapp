@@ -6,14 +6,14 @@ services:
     container_name: quizapp-db
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-quizapp}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-quizapp_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quizapp_password}
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-quizapp}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-quizapp_user} -d ${POSTGRES_DB:-quizapp}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,8 +29,11 @@ services:
       DB_URL: jdbc:postgresql://db:5432/quizapp
       DB_USERNAME: ${DB_USERNAME:-quizapp_user}
       DB_PASSWORD: ${DB_PASSWORD:-quizapp_password}
-      DB_ADMIN_USERNAME: ${POSTGRES_USER:-postgres}
-      DB_ADMIN_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DB_ADMIN_USERNAME: ${POSTGRES_USER:-quizapp_user}
+      DB_ADMIN_PASSWORD: ${POSTGRES_PASSWORD:-quizapp_password}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      JWT_SECRET: ${JWT_SECRET:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30}
     depends_on:
       db:
         condition: service_healthy
@@ -40,6 +43,10 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        - REACT_APP_GOOGLE_CLIENT_ID=${REACT_APP_GOOGLE_CLIENT_ID}
+    environment:
+      - REACT_APP_GOOGLE_CLIENT_ID=${REACT_APP_GOOGLE_CLIENT_ID}
     container_name: quizapp-frontend
     ports:
       - "3000:80"
