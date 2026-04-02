@@ -6,6 +6,7 @@ function Register() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -27,7 +28,7 @@ function Register() {
     setLoading(true);
 
     try {
-      const data = await register(email, password);
+      const data = await register(email, username, password);
       localStorage.setItem("token", data.token);
       navigate("/");
     } catch (err) {
@@ -68,6 +69,19 @@ function Register() {
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">
+              Username
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="your_username"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">
               Password
             </label>
             <input
@@ -100,7 +114,7 @@ function Register() {
 
           <button
             onClick={handleSubmit}
-            disabled={loading || !email || !password || !confirmPassword}
+            disabled={loading || !email || !username || !password || !confirmPassword}
             className="w-full py-3 rounded-xl font-semibold text-sm bg-violet-500 hover:bg-violet-400 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-lg shadow-violet-500/20"
           >
             {loading ? "Creating account..." : "Create Account"}
