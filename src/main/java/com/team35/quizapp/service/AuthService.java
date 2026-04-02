@@ -26,6 +26,27 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider; // We will create this next
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
+    public AuthResponse register(com.team35.quizapp.dto.user.CreateUserRequest request) {
+        // Check if user already exists
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            throw new RuntimeException("Email already in use");
+        }
+
+        // Create new user entity
+        User user = User.builder()
+                .username(request.username())
+                .email(request.email())
+                .passwordHash(passwordEncoder.encode(request.password())) // HASH THE PASSWORD!
+                .build();
+
+        userRepository.save(user);
+
+        // Generate token so they are logged in immediately after registering
+        String token = jwtProvider.generateToken(user);
+        return new AuthResponse(token);
+    }
 
     public AuthResponse login(LoginRequest request) {
         try {
