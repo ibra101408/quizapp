@@ -11,6 +11,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.Value;
 import com.team35.quizapp.config.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 
@@ -20,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -29,34 +31,36 @@ public class AuthService {
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     public AuthResponse register(com.team35.quizapp.dto.user.CreateUserRequest request) {
-        // Check if user already exists
+        log.debug("Register attempt: email={}", request.email());
         if (userRepository.findByEmail(request.email()).isPresent()) {
+            log.warn("Register failed — email already in use: {}", request.email());
             throw new RuntimeException("Email already in use");
         }
 
-        // Create new user entity
         User user = User.builder()
                 .username(request.username())
                 .email(request.email())
-                .passwordHash(passwordEncoder.encode(request.password())) // HASH THE PASSWORD!
+                .passwordHash(passwordEncoder.encode(request.password()))
                 .build();
 
         userRepository.save(user);
+        log.info("User registered: id={}, email={}", user.getId(), user.getEmail());
 
-        // Generate token so they are logged in immediately after registering
         String token = jwtProvider.generateToken(user);
         return new AuthResponse(token);
     }
 
     public AuthResponse login(LoginRequest request) {
+        log.debug("Login attempt: email={}", request.email());
         try {
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.email(), request.password())
-        );
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.email(), request.password())
+            );
             String token = jwtProvider.generateToken(authentication);
+            log.info("Login success: email={}", request.email());
             return new AuthResponse(token);
         } catch (org.springframework.security.core.AuthenticationException e) {
-            System.out.println("Login failed for: " + request.email() + " - Reason: " + e.getMessage());
+            log.warn("Login failed: email={} — {}", request.email(), e.getMessage());
             throw e;
         }
     }
@@ -65,39 +69,37 @@ public class AuthService {
     
     private final UserRepository userRepository;
     public AuthResponse loginWithGoogle(String idTokenString) {
+        log.debug("Google login attempt");
         try {
-            // 1. Setup the Verifier
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                     .setAudience(Collections.singletonList(googleClientId))
                     .build();
 
-            // 2. Verify the token
             GoogleIdToken idToken = verifier.verify(idTokenString);
             if (idToken == null) {
+                log.warn("Google login failed — invalid token");
                 throw new RuntimeException("Invalid Google Token");
             }
 
-            // 3. Extract user info from Google's payload
             GoogleIdToken.Payload payload = idToken.getPayload();
             String email = payload.getEmail();
-            String name = (String) payload.get("name");
 
-            // 4. Find or Create the user in our DB
             User user = userRepository.findByEmail(email)
                     .orElseGet(() -> {
                         User newUser = User.builder()
                                 .email(email)
-                                .username(email) // Default username to email
-                                .passwordHash(null) // Google users don't have a local password
+                                .username(email)
+                                .passwordHash(null)
                                 .build();
                         return userRepository.save(newUser);
                     });
 
-            // 5. Generate YOUR app's JWT (Same logic as normal login)
-            String appToken = jwtProvider.generateToken(user); 
+            String appToken = jwtProvider.generateToken(user);
+            log.info("Google login success: email={}", email);
             return new AuthResponse(appToken);
 
         } catch (Exception e) {
+            log.warn("Google login failed: {}", e.getMessage());
             throw new RuntimeException("Google Authentication failed", e);
         }
     }

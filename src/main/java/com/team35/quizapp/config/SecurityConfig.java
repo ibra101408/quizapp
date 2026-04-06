@@ -1,5 +1,6 @@
 package com.team35.quizapp.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -45,9 +47,12 @@ public class SecurityConfig {
 	    .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         if (googleClientId != null && !googleClientId.isBlank()) {
+            log.info("Google OAuth2 login enabled");
             http.oauth2Login(oauth2 -> oauth2
                 .defaultSuccessUrl("http://localhost:3000/", true)
             );
+        } else {
+            log.info("Google OAuth2 login disabled (GOOGLE_CLIENT_ID not set)");
         }
 
         return http.build();

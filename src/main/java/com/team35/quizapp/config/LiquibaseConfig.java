@@ -1,11 +1,13 @@
 package com.team35.quizapp.config;
 
 import liquibase.integration.spring.SpringLiquibase;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+@Slf4j
 @Configuration
 public class LiquibaseConfig {
 
@@ -20,6 +22,7 @@ public class LiquibaseConfig {
 
     @Bean
     public SpringLiquibase liquibase() {
+        log.info("Running Liquibase migrations as user: {}", adminUsername);
         DriverManagerDataSource adminDataSource = new DriverManagerDataSource();
         adminDataSource.setUrl(url);
         adminDataSource.setUsername(adminUsername);
