@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import HostCreateGame from "./pages/HostCreateGame";
 import HostLobby from "./pages/HostLobby";
 import Login from "./pages/Login";
