@@ -17,11 +17,7 @@ function Login() {
     getCurrentUser().then(user => {
       if (user) navigate("/HostCreateGame");
     });
-  }, []);
-  const handleGoogleLogin = () => {
-      // This forces a full page reload, which is REQUIRED for OAuth2
-      window.location.href = "http://localhost:8080/oauth2/authorization/google";
-  };
+  }, [navigate]);
 
   async function handleSubmit(e) {
     e.preventDefault();
