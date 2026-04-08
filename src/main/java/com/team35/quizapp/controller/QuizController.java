@@ -1,31 +1,20 @@
 package com.team35.quizapp.controller;
 
-import java.security.Principal;
 import java.util.List;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.team35.quizapp.entity.Quiz;
-import com.team35.quizapp.repository.QuizRepository;
-
+import com.team35.quizapp.dto.quiz.CreateQuizRequest;
+import com.team35.quizapp.dto.quiz.QuizResponse;
+import com.team35.quizapp.service.QuizService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Quiz", description = "Quiz management")
 @RestController
 @RequestMapping("/api/quizzes")
 @RequiredArgsConstructor
 public class QuizController {
-    private final QuizRepository quizRepository;
-
-    @GetMapping("/my-quizzes")
-    public ResponseEntity<List<Quiz>> getMyQuizzes(Principal principal) {
-        // Principal is automatically populated by Spring Security from JWT
-        String email = principal.getName(); 
-        return ResponseEntity.ok(quizRepository.findByCreatorEmail(email));
-    }
-}
 
     private final QuizService quizService;
 
