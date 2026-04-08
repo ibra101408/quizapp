@@ -77,12 +77,12 @@ public class QuizService {
                 questionResponses
         );
     }
-public List<QuizResponse> getMyQuizzes() {
-    User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    return quizRepository.findByCreator(currentUser).stream()
-            .map(this::toResponse)
-            .toList();
-}
+    public List<QuizResponse> getMyQuizzes() {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return quizRepository.findByCreatorEmail(currentUser.getEmail()).stream()
+                .map(this::toResponse)
+                .toList();
+    }
     public void deleteQuiz(Long id) {
         Quiz quiz = quizRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found"));
