@@ -92,5 +92,4 @@ public class QuizService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found"));
         quizRepository.delete(quiz);
     }
-
 }
