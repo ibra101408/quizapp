@@ -1,8 +1,7 @@
 import { getToken } from "./authService";
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/quizzes";
-
+const API_URL = "http://localhost:8080/api";
 const authHeader = () => ({
   headers: { Authorization: `Bearer ${getToken()}` }
 });

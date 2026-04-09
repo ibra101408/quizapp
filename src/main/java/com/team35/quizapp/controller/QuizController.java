@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Quiz", description = "Quiz management")
 @RestController
 @RequestMapping("/api/quizzes")
 @RequiredArgsConstructor
@@ -28,5 +29,12 @@ public class QuizController {
     @GetMapping("/my-quizzes")
     public List<QuizResponse> getMyQuizzes() {
         return quizService.getMyQuizzes();
+    }
+
+    @Operation(summary = "Delete a quiz")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteQuiz(@PathVariable Long id) {
+        quizService.deleteQuiz(id);
     }
 }

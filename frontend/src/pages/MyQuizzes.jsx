@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyQuizzes } from "../services/quizService";
+import { getMyQuizzes, deleteQuiz } from "../services/quizService";
 
 function MyQuizzes() {
   const navigate = useNavigate();
@@ -132,6 +132,19 @@ function MyQuizzes() {
                         className="flex-1 py-2 rounded-lg border border-white/20 text-white/70 hover:bg-white/10 hover:text-white text-xs font-semibold transition"
                       >
                         ✏ Modify
+                      </button>
+                      <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            if (window.confirm("Delete this quiz?")) {
+                              deleteQuiz(quiz.id)
+                                  .then(() => setQuizzes(quizzes.filter(q => q.id !== quiz.id)))
+                                  .catch(() => alert("Failed to delete quiz."));
+                            }
+                          }}
+                          className="flex-1 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs font-semibold transition"
+                      >
+                        🗑 Delete
                       </button>
                     </div>
                   )}

@@ -52,6 +52,12 @@ class UserControllerTest {
 
     @MockitoBean JwtAuthFilter jwtAuthFilter;
 
+    @MockitoBean
+    com.team35.quizapp.config.JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockitoBean
+    com.team35.quizapp.config.JwtProvider jwtProvider;
+
     @BeforeEach
 	void setUp() throws Exception {
     	    doAnswer((InvocationOnMock invocation) -> {
@@ -61,6 +67,14 @@ class UserControllerTest {
         	chain.doFilter(req, res);
         	return null;
     	    }).when(jwtAuthFilter).doFilter(any(), any(), any());
+
+            doAnswer((InvocationOnMock invocation) -> {
+            HttpServletRequest req = invocation.getArgument(0);
+            HttpServletResponse res = invocation.getArgument(1);
+            FilterChain chain = invocation.getArgument(2);
+            chain.doFilter(req, res);
+            return null;
+            }).when(jwtAuthenticationFilter).doFilter(any(), any(), any());
 	}
 
     // Test 1: successfully create a user

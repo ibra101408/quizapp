@@ -17,6 +17,7 @@ function HostCreateGame() {
   const [answers, setAnswers] = useState(["", "", "", ""]);
   const [correct, setCorrect] = useState([]);
   const [activeQuestion, setActiveQuestion] = useState(null);
+  const [questionType, setQuestionType] = useState("multiple");
 
   function toggleCorrect(index) {
     if (correct.includes(index)) {
@@ -26,12 +27,23 @@ function HostCreateGame() {
     }
   }
 
+  function handleTypeChange(type) {
+    setQuestionType(type);
+    if (type === "truefalse") {
+      setAnswers(["True answer here", "False answer here"]);
+      setCorrect([0]); // True is selected by default
+    } else {
+      setAnswers(["", "", "", ""]);
+      setCorrect([]);
+    }
+  }
+
   function addQuestion() {
     const formattedAnswers = answers.map((answer, index) => ({
       text: answer,
       isCorrect: correct.includes(index),
     }));
-    const newQuestion = { text: questionText, timeLimit, answers: formattedAnswers };
+    const newQuestion = { text: questionText, timeLimit, questionType, answers: formattedAnswers };
     setQuestions([...questions, newQuestion]);
     setQuestionText("");
     setTimeLimit(30);
@@ -54,13 +66,19 @@ function HostCreateGame() {
   }
 
   const answerColors = [
-    { border: "border-rose-400", bg: "bg-rose-50", dot: "bg-rose-400", label: "text-rose-500", activeBg: "bg-rose-400" },
-    { border: "border-sky-400", bg: "bg-sky-50", dot: "bg-sky-400", label: "text-sky-500", activeBg: "bg-sky-400" },
-    { border: "border-amber-400", bg: "bg-amber-50", dot: "bg-amber-400", label: "text-amber-500", activeBg: "bg-amber-400" },
-    { border: "border-emerald-400", bg: "bg-emerald-50", dot: "bg-emerald-400", label: "text-emerald-500", activeBg: "bg-emerald-400" },
+    { border: "border-rose-400", bg: "bg-rose-50", label: "text-rose-500", activeBg: "bg-rose-400" },
+    { border: "border-sky-400", bg: "bg-sky-50", label: "text-sky-500", activeBg: "bg-sky-400" },
+    { border: "border-amber-400", bg: "bg-amber-50", label: "text-amber-500", activeBg: "bg-amber-400" },
+    { border: "border-emerald-400", bg: "bg-emerald-50", label: "text-emerald-500", activeBg: "bg-emerald-400" },
+    { border: "border-purple-400", bg: "bg-purple-50", label: "text-purple-500", activeBg: "bg-purple-400" },
+    { border: "border-orange-400", bg: "bg-orange-50", label: "text-orange-500", activeBg: "bg-orange-400" },
+    { border: "border-pink-400", bg: "bg-pink-50", label: "text-pink-500", activeBg: "bg-pink-400" },
+    { border: "border-teal-400", bg: "bg-teal-50", label: "text-teal-500", activeBg: "bg-teal-400" },
+    { border: "border-indigo-400", bg: "bg-indigo-50", label: "text-indigo-500", activeBg: "bg-indigo-400" },
+    { border: "border-lime-400", bg: "bg-lime-50", label: "text-lime-500", activeBg: "bg-lime-400" },
   ];
 
-  const answerLabels = ["A", "B", "C", "D"];
+  const answerLabels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
 
   return (
     <div className="min-h-screen bg-gray-950 text-white font-sans">
@@ -198,6 +216,37 @@ function HostCreateGame() {
               <p className="text-white/40 text-sm mt-1">Click an answer to mark it as correct</p>
             </div>
 
+            {/* Question type */}
+            <div className="mb-6">
+              <label className="block text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">
+                Question Type
+              </label>
+              <div className="flex gap-2">
+                <button
+                    type="button"
+                    onClick={() => handleTypeChange("multiple")}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                        questionType === "multiple"
+                            ? "bg-violet-500 text-white"
+                            : "border border-white/20 text-white/50 hover:text-white hover:bg-white/10"
+                    }`}
+                >
+                  Multiple Choice
+                </button>
+                <button
+                    type="button"
+                    onClick={() => handleTypeChange("truefalse")}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                        questionType === "truefalse"
+                            ? "bg-violet-500 text-white"
+                            : "border border-white/20 text-white/50 hover:text-white hover:bg-white/10"
+                    }`}
+                >
+                  True / False
+                </button>
+              </div>
+            </div>
+
             {/* Question input */}
             <div className="mb-6">
               <label className="block text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">
@@ -229,7 +278,7 @@ function HostCreateGame() {
             </div>
 
             {/* Answers grid */}
-            <div className="grid grid-cols-2 gap-3 mb-8">
+            <div className="grid grid-cols-2 gap-3 mb-4">
               {answers.map((a, i) => {
                 const color = answerColors[i];
                 const isCorrect = correct.includes(i);
@@ -251,21 +300,57 @@ function HostCreateGame() {
                         <span className={`text-xs font-semibold ${color.label}`}>✓ Correct</span>
                       )}
                     </div>
-                    <input
-                      className="w-full bg-transparent text-sm text-white placeholder-white/30 focus:outline-none"
-                      placeholder={`Answer ${answerLabels[i]}...`}
-                      value={a}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => {
-                        const copy = [...answers];
-                        copy[i] = e.target.value;
-                        setAnswers(copy);
-                      }}
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        className={`w-full bg-transparent text-sm focus:outline-none placeholder-white/30 ${isCorrect ? "text-black" : "text-white"}`}
+                        placeholder={`Answer ${answerLabels[i]}...`}
+                        value={a}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => {
+                          const copy = [...answers];
+                          copy[i] = e.target.value;
+                          setAnswers(copy);
+                        }}
+                      />
+                      {answers.length > 2 && (
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            setAnswers(answers.filter((_, ai) => ai !== i));
+                            setCorrect(correct.filter(ci => ci !== i).map(ci => ci > i ? ci - 1 : ci));
+                          }}
+                          className={`shrink-0 transition text-xs font-bold ${isCorrect ? "text-red-500" : "text-white/40 hover:text-red-400"}`}
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
             </div>
+
+            {/* Answer count controls */}
+            {questionType === "multiple" && (
+                <div className="flex gap-2 mb-6">
+                  <button
+                      type="button"
+                      onClick={() => setAnswers([...answers, ""])}
+                      disabled={answers.length >= 10}
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg border border-white/20 text-white/60 hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  >
+                    + Add Answer
+                  </button>
+                  <button
+                      type="button"
+                      onClick={() => { setAnswers(answers.slice(0, -1)); setCorrect(correct.filter(i => i < answers.length - 1)); }}
+                      disabled={answers.length <= 2}
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg border border-white/20 text-white/60 hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  >
+                    − Remove Answer
+                  </button>
+                </div>
+            )}
 
             {/* Add question button */}
             <button
