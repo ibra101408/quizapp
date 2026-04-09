@@ -20,10 +20,16 @@ export function getToken() {
 }
 
 export async function getCurrentUser() {
+  const token = localStorage.getItem("token");
+  if (!token) return null; 
+
   try {
-    const response = await axios.get(`${API_URL}/me`, { withCredentials: true });
+    const response = await axios.get(`${API_URL}/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     return response.data;
   } catch (error) {
+    localStorage.removeItem("token"); // Token was invalid, clear it
     return null;
   }
 }

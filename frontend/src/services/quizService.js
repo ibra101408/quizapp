@@ -8,19 +8,10 @@ const authHeader = () => ({
 });
 
 export const getMyQuizzes = async () => {
-  const token = localStorage.getItem('token');
-  const response = await axios.get(`${API_URL}/my-quizzes`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await axios.get(`${API_URL}/my-quizzes`, authHeader());
   return response.data;
 };
 
 export async function createQuiz(quiz) {
   return axios.post(`${API_URL}/quizzes`, quiz, authHeader());
-}
-
-export async function getMyQuizzes() {
-  return axios.get(`${API_URL}/quizzes`, authHeader());
 }

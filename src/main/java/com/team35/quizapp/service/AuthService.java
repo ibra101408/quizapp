@@ -1,6 +1,6 @@
 package com.team35.quizapp.service;
 
-import com.team35.quizapp.dto.user.AuthResponse; // Check your actual DTO package path
+import com.team35.quizapp.dto.user.AuthResponse;
 import com.team35.quizapp.dto.user.LoginRequest;
 import com.team35.quizapp.entity.User;
 import com.team35.quizapp.repository.UserRepository;
@@ -8,7 +8,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.util.Value;
+import org.springframework.beans.factory.annotation.Value;
 import com.team35.quizapp.config.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtProvider jwtProvider; // We will create this next
+    private final JwtProvider jwtProvider;
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     public AuthResponse register(com.team35.quizapp.dto.user.CreateUserRequest request) {
@@ -49,6 +49,7 @@ public class AuthService {
         String token = jwtProvider.generateToken(user);
         return new AuthResponse(token);
     }
+    
 
     public AuthResponse login(LoginRequest request) {
         log.debug("Login attempt: email={}", request.email());
@@ -64,20 +65,29 @@ public class AuthService {
             throw e;
         }
     }
-    @Value("${GOOGLE_CLIENT_ID}")
+
+    @Value("${GOOGLE_CLIENT_ID:${spring.security.oauth2.client.registration.google.client-id}}")    
     private String googleClientId;
-    
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        System.out.println("DEBUG: Google Client ID loaded as: " + googleClientId);
+    }
+
     private final UserRepository userRepository;
     public AuthResponse loginWithGoogle(String idTokenString) {
         log.debug("Google login attempt");
         try {
+            
+            GoogleIdToken idToken = GoogleIdToken.parse(new GsonFactory(), idTokenString);
+         
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                    .setAudience(Collections.singletonList(googleClientId))
-                    .build();
+                .setAudience(Collections.singletonList(googleClientId))
+                .build();
+            
+            GoogleIdToken verifiedToken = verifier.verify(idTokenString);
 
-            GoogleIdToken idToken = verifier.verify(idTokenString);
-            if (idToken == null) {
-                log.warn("Google login failed — invalid token");
+            if (verifiedToken == null) {
                 throw new RuntimeException("Invalid Google Token");
             }
 

@@ -35,7 +35,7 @@ public class AuthController {
 
     @PostMapping("/google")
     public ResponseEntity<AuthResponse> googleLogin(@RequestBody String googleToken) {
-        return ResponseEntity.ok(authService.loginWithGoogle(googleToken));
+        return ResponseEntity.ok(authService.loginWithGoogle(googleToken.trim()));
     }
 
     // Returns the logged in user's info from Google

@@ -34,7 +34,6 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            // 1. SET STATELESS SESSION MANAGEMENT (Critical for JWT)
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
@@ -43,26 +42,13 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
             )
-            // 2. USE THE CORRECT CLASS FOR FILTER POSITIONING
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
 
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint((request, response, authException) -> {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                 })
-            )
-	    .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        // Keep this if you still want the automatic OAuth2 flow, 
-        // but remember we are handling Google manually via AuthController!
-        if (googleClientId != null && !googleClientId.isBlank()) {
-            log.info("Google OAuth2 login enabled");
-            http.oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("http://localhost:3000/", true)
             );
-        } else {
-            log.info("Google OAuth2 login disabled (GOOGLE_CLIENT_ID not set)");
-        }
 
         return http.build();
     }

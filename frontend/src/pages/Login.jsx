@@ -57,9 +57,10 @@ function Login() {
             <GoogleLogin
               onSuccess={async (credentialResponse) => {
                 try {
-                  const res = await axios.post('http://localhost:8080/api/auth/google', {
-                    token: credentialResponse.credential
-                  });
+                  const res = await axios.post('http://localhost:8080/api/auth/google', 
+                    credentialResponse.credential, 
+                    { headers: { "Content-Type": "text/plain" } }
+                  );
                   localStorage.setItem('token', res.data.token);
                   navigate('/Home');
                 } catch (err) {
