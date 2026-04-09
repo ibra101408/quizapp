@@ -4,6 +4,7 @@ import com.team35.quizapp.dto.quiz.CreateQuizRequest;
 import com.team35.quizapp.dto.quiz.QuizResponse;
 import com.team35.quizapp.service.QuizService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
