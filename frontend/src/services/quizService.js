@@ -7,8 +7,8 @@ const authHeader = () => ({
 });
 
 export const getMyQuizzes = async () => {
-  const response = await axios.get(`${API_URL}/quizzes/my-quizzes`, authHeader());
-  return response.data;
+  const response = await axios.get(`${API_URL}/quizzes`, authHeader());
+  return response;
 };
 
 export async function createQuiz(quiz) {
