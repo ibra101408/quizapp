@@ -23,13 +23,6 @@ public class QuizService {
     private final QuizRepository quizRepository;
     private final UserRepository userRepository;
 
-<<<<<<< HEAD
-    public QuizResponse createQuiz(CreateQuizRequest request) {
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-
-=======
     /**
      * Helper method to safely extract the email from the Security Context
      */
@@ -52,7 +45,6 @@ public class QuizService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         // 3. Build questions and answers
->>>>>>> 7be2ffc2d10d7fd2e6020cfa9b17098514b1c11b
         List<Question> questions = request.questions().stream().map(qReq -> {
             Question question = Question.builder()
                     .text(qReq.text())
@@ -72,10 +64,7 @@ public class QuizService {
             return question;
         }).toList();
 
-<<<<<<< HEAD
-=======
         // 4. Build quiz and link the creator (User object)
->>>>>>> 7be2ffc2d10d7fd2e6020cfa9b17098514b1c11b
         Quiz quiz = Quiz.builder()
                 .title(request.title())
                 .theme(request.theme())
@@ -127,23 +116,4 @@ public class QuizService {
                 questionResponses
         );
     }
-<<<<<<< HEAD
-
-    public List<QuizResponse> getMyQuizzes() {
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-        return quizRepository.findByCreatorEmail(currentUser.getEmail()).stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
-    public void deleteQuiz(Long id) {
-        Quiz quiz = quizRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found"));
-        quizRepository.delete(quiz);
-    }
 }
-=======
-}
->>>>>>> 7be2ffc2d10d7fd2e6020cfa9b17098514b1c11b
