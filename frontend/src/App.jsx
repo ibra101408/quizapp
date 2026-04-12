@@ -37,8 +37,7 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  { path: "/player", element: <PlayerView /> },
-  { path: "/test", element: <div>TEST</div> },
+  { path: "/Player", element: <PlayerView /> },
 ]);
 
 function App() {

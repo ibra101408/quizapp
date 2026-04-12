@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import AnswerButton from "./AnswerButton";
+import AnswerButton from "../../components/game/AnswerButton";
 
 export default function PlayerView() {
   const player = {
@@ -7,7 +7,6 @@ export default function PlayerView() {
     score: 982,
   };
 
-  // Question Data Base
   const question = {
     text: "Who invented the lightbulb?",
     timeLimit: 30,
@@ -22,12 +21,7 @@ export default function PlayerView() {
   const [timeLeft, setTimeLeft] = useState(question.timeLimit);
   const [selected, setSelected] = useState(null);
 
-  // Timer
-
-  //   useEffect(() => {
-  //   setTimeLeft(question.timeLimit);
-  // }, [question]);
-
+  // TIMER
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
@@ -42,74 +36,82 @@ export default function PlayerView() {
     return () => clearInterval(interval);
   }, []);
 
-  // Answer
-
-  const handleAnswer = (id) => {
-    if (selected) return;
+  const handleSelect = (id) => {
     setSelected(id);
   };
 
   const colors = [
-    "bg-[#A78BFA]/20 border border-[#A78BFA]/40 hover:bg-[#A78BFA]/30",
-    "bg-gray-800 border border-gray-700 hover:bg-gray-700",
-    "bg-[#5f47a5] border border-[#7c5fd1] hover:bg-[#6d55b8]", // 👈 новая 3-я кнопка
-    "bg-[#A78BFA] text-black hover:bg-[#c4b5fd]",
+    "bg-[#A78BFA]/20 border border-[#A78BFA]/40",
+    "bg-gray-800 border border-gray-700",
+    "bg-[#5f47a5] border border-[#7c5fd1]",
+    "bg-[#A78BFA] text-black",
   ];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white font-sans">
-      {/* HEADER — как в HostCreateGame */}
-      <div className="border-b border-white/10 px-6 py-4 flex items-center justify-between bg-gray-900/60 backdrop-blur-sm">
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
+      {/* HEADER */}
+      <div className="border-b border-white/10 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between bg-gray-900/60 backdrop-blur-sm">
+        {" "}
         <div className="flex items-center gap-3">
-          {/* Q квадрат */}
+          {" "}
           <div className="w-8 h-8 rounded-lg bg-[#A78BFA] flex items-center justify-center text-sm font-bold text-black">
-            Q
-          </div>
-
+            {" "}
+            Q{" "}
+          </div>{" "}
           <span className="text-sm font-semibold text-white/80 tracking-wide uppercase">
-            Quiz Game
-          </span>
-        </div>
-
-        {/* PLAYER INFO */}
-        <div className="flex items-center gap-6">
-          <div className="text-lg font-semibold text-white">
-            {player.nickname}
-          </div>
-          <div className="text-lg font-bold text-[#A78BFA]">{player.score}</div>
-        </div>
+            {" "}
+            Quiz Game{" "}
+          </span>{" "}
+        </div>{" "}
+        <div className="flex items-center gap-4">
+          {" "}
+          <div className="text-base md:text-lg font-semibold">
+            {" "}
+            {player.nickname}{" "}
+          </div>{" "}
+          <div className="text-base md:text-lg font-bold text-[#A78BFA]">
+            {" "}
+            {player.score}{" "}
+          </div>{" "}
+        </div>{" "}
       </div>
 
       {/* CONTENT */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        {/* QUESTION INFO */}
-        <div className="mb-6 text-left">
-          <p className="text-xs uppercase tracking-widest text-white/40 mb-2">
-            Question 1
-          </p>
+      <div className="flex-1 px-6 md:px-6 py-10 flex flex-col w-full md:max-w-4xl md:mx-auto">
+        {/* QUESTION */}
+        <div className="mb-6">
+          <div className="text-xs uppercase text-white/40 mb-2">Question 1</div>
 
-          <div className="flex items-center gap-4 mb-4">
-            <span className="text-sm text-white/50">⏱ {timeLeft}s</span>
+          {/* TIMER */}
+          <div className="flex items-center gap-2 mb-4">
+            <div
+              className={`text-4xl font-bold ${
+                timeLeft <= 5 ? "text-red-500 animate-pulse" : "text-[#A78BFA]"
+              }`}
+            >
+              {timeLeft}
+            </div>
+            <span className="text-xs text-white/40">SEC</span>
           </div>
 
-          <h1 className="text-2xl font-bold text-white">{question.text}</h1>
+          <h1 className="text-lg font-semibold leading-snug">
+            {question.text}
+          </h1>
         </div>
-
         {/* ANSWERS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 w-full">
           {question.answers.map((answer, index) => (
             <AnswerButton
               key={answer.id}
               text={answer.text}
               color={colors[index]}
               selected={selected === answer.id}
-              onClick={() => handleAnswer(answer.id)}
+              onClick={() => handleSelect(answer.id)}
             />
           ))}
         </div>
-
         {/* FOOTER */}
-        <div className="text-center text-white/30 text-xs mt-8">
+        <div className="mt-auto text-center text-xs text-white/30 pt-6">
           Choose wisely
         </div>
       </div>
