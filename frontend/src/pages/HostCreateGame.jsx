@@ -147,21 +147,13 @@ function HostCreateGame() {
             Quiz Builder
           </span>
           <button
-            onClick={() => navigate("/MyQuizzes")}
+            onClick={() => navigate("/Home")}
             className="ml-6 text-sm text-white/50 hover:text-white transition"
           >
             My Quizzes
           </button>
           <button
-            onClick={() => {
-              setTitle("");
-              setTheme("");
-              setQuestions([]);
-              setQuestionText("");
-              setAnswers(["", "", "", ""]);
-              setCorrect([]);
-              setActiveQuestion(null);
-            }}
+            onClick={() => navigate("/HostCreateGame")}
             className="ml-4 text-sm text-white/50 hover:text-white transition"
           >
             + New Quiz
