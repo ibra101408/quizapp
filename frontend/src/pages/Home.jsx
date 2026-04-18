@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getMyQuizzes, deleteQuiz } from "../services/quizService";
 import { Plus, Play, Edit3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { createSession } from "../services/quizService";
 
 function Home() {
   const [quizzes, setQuizzes] = useState([]);
@@ -31,6 +32,17 @@ function Home() {
     const matchesTheme = themeFilter === "" || q.theme?.toLowerCase() === themeFilter;
     return matchesName && matchesTheme;
   });
+
+  async function handleHost(quizId) {
+  try {
+    const sessionData = await createSession(quizId);
+    console.log("Session created:", sessionData);
+    navigate(`/HostLobby/${sessionData.gamePin}`, { state: { session: sessionData } });
+  } catch (err) {
+    console.error("Failed to start session", err);
+    alert("Could not start game session.");
+  }
+}
 
   function handleDelete(quizId) {
     if (window.confirm("Delete this quiz?")) {
@@ -131,9 +143,9 @@ function Home() {
                   </button>
                   <button
                     className="flex-grow flex items-center justify-center gap-2 bg-violet-500 hover:bg-violet-400 py-2 rounded-lg text-sm font-medium transition"
-                    onClick={() => navigate("/HostLobby", { state: { quiz } })}
+                    onClick={() => handleHost(quiz.id)}
                   >
-                    <Play size={16} /> Host
+                    <Play size={16} /> Host11
                   </button>
                   <button
                     className="px-3 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm transition"
