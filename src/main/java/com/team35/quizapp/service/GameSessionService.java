@@ -8,6 +8,8 @@ import com.team35.quizapp.entity.*;
 import com.team35.quizapp.entity.enums.GameStatus;
 import com.team35.quizapp.repository.GameSessionRepository;
 import com.team35.quizapp.repository.QuizRepository;
+import com.team35.quizapp.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class GameSessionService {
+    private final UserRepository userRepository;
 
     private final GameSessionRepository gameSessionRepository;
     private final QuizRepository quizRepository;
@@ -31,17 +34,20 @@ public class GameSessionService {
     // Creates a session in WAITING state — players can join but the game has not started yet.
     // The host must call a separate "start game" endpoint after players have joined.
     @Transactional
-    public GameSessionResponse createSession(Long hostId, StartGameRequest request) {
-        log.debug("Creating game session: hostId={}, quizId={}", hostId, request.quizId());
+    public GameSessionResponse createSession(StartGameRequest request, String email) {
+        log.debug("Creating game session: hostId={}, quizId={}", email, request.quizId());
 
+        User host = userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                
         // Load the quiz — fail fast with 404 if it doesn't exist
         Quiz quiz = quizRepository.findById(request.quizId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found"));
 
         // Security check: only the quiz creator can start a session with it.
         // hostId comes from the JWT token (set in JwtAuthFilter), not from the request body.
-        if (!quiz.getCreator().getId().equals(hostId)) {
-            log.warn("Unauthorized session create: hostId={} does not own quizId={}", hostId, request.quizId());
+        if (!quiz.getCreator().getId().equals(host.getId())) {
+            log.warn("Unauthorized session create: hostId={} does not own quizId={}", email, request.quizId());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not own this quiz");
         }
 

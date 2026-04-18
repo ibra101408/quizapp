@@ -19,3 +19,8 @@ export async function createQuiz(quiz) {
 export async function deleteQuiz(id) {
   return axios.delete(`${API_URL}/quizzes/${id}`, authHeader());
 }
+
+export const createSession = async (quizId) => {
+  const response = await axios.post(`${API_URL}/sessions`, { quizId }, authHeader());
+  return response.data; // returns the object with gamePin and sessionId
+};

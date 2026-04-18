@@ -27,7 +27,14 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ) 
   },
-  { path: "/HostLobby", element: <HostLobby /> },
+  { 
+    path: "/HostLobby/:gamePin",
+    element: (
+      <ProtectedRoute>
+        <HostLobby /> 
+      </ProtectedRoute>
+    )
+  },
   { path: "/MyQuizzes", element: <ProtectedRoute><MyQuizzes /></ProtectedRoute> },
 ]);
 

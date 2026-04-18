@@ -42,14 +42,16 @@ public class GameSessionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GameSessionResponse createSession(
-            @RequestBody StartGameRequest request,
+            @RequestBody StartGameRequest request) {
             // @AuthenticationPrincipal gives us the currently logged-in user.
             // This works because JwtAuthFilter parses the Bearer token from the
             // Authorization header and sets the User entity as the principal.
             // If there is no valid token, principal will be null and Spring Security
             // will reject the request before it reaches this method.
-            @AuthenticationPrincipal User principal) {
+            String email = org.springframework.security.core.context.SecurityContextHolder
+            .getContext().getAuthentication().getName();
 
-        return gameSessionService.createSession(principal.getId(), request);
+    // 2. Pass to service to handle the ID lookup
+    return gameSessionService.createSession(request, email);
     }
 }
