@@ -145,7 +145,7 @@ function Home() {
                     className="flex-grow flex items-center justify-center gap-2 bg-violet-500 hover:bg-violet-400 py-2 rounded-lg text-sm font-medium transition"
                     onClick={() => handleHost(quiz.id)}
                   >
-                    <Play size={16} /> Host11
+                    <Play size={16} /> Host
                   </button>
                   <button
                     className="px-3 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm transition"
