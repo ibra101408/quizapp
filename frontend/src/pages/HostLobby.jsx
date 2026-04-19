@@ -2,6 +2,10 @@ import { Users, Play } from "lucide-react";
 import { useState } from "react";
 import { useWebSocket } from "../hooks/useWebSocket";
 import { useLocation, useParams } from "react-router-dom";
+import axios from "axios";
+import { getToken } from "../services/authService";
+
+const API_URL = "http://localhost:8080/api";
 
 function HostLobby() {
   const { state } = useLocation();
@@ -15,11 +19,22 @@ function HostLobby() {
     onPlayersUpdate: (updatedPlayers) => setPlayers([...updatedPlayers]),
   });
 
+  async function handleKick(nickname) {
+    if (!window.confirm(`Kick ${nickname}?`)) return;
+    try {
+      await axios.delete(`${API_URL}/sessions/${gamePin}/players/${nickname}`, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
+    } catch (err) {
+      console.error("Failed to kick player", err);
+      alert("Failed to kick player.");
+    }
+  }
+
   if (!session) return <div className="text-white">Loading session...</div>;
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center p-8">
-
       {/* Top Info */}
       <div className="w-full max-w-4xl flex justify-between items-center mb-12">
         <div>
@@ -34,10 +49,10 @@ function HostLobby() {
       {/* PIN Section */}
       <div className="bg-gray-900 border border-white/10 rounded-3xl p-12 text-center mb-12 w-full max-w-md shadow-2xl">
         <p className="text-white/40 mb-2 uppercase font-semibold">
-          Join at <span className="text-violet-400">localhost:3000/game/{session.gamePin}</span>
+          Join at <span className="text-violet-400">localhost:3000/game/{gamePin}</span>
         </p>
         <h1 className="text-7xl font-black tracking-tighter text-white">
-          {session.gamePin}
+          {gamePin}
         </h1>
       </div>
 
@@ -52,8 +67,14 @@ function HostLobby() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {players.map((p, i) => (
-              <div key={i} className="bg-white/5 border border-white/5 p-4 rounded-xl text-center">
+              <div key={i} className="bg-white/5 border border-white/5 p-4 rounded-xl text-center relative group">
                 <span className="font-medium text-white/80">{p}</span>
+                <button
+                  onClick={() => handleKick(p)}
+                  className="absolute top-1 right-1 text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition text-xs px-1"
+                >
+                  ✕
+                </button>
               </div>
             ))}
           </div>
