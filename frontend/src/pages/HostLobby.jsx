@@ -1,17 +1,25 @@
-import { useLocation, useParams } from "react-router-dom";
 import { Users, Play } from "lucide-react";
+import { useState } from "react";
+import { useWebSocket } from "../hooks/useWebSocket";
+import { useLocation, useParams } from "react-router-dom";
 
 function HostLobby() {
   const { state } = useLocation();
+  const { gamePin } = useParams();
   const session = state?.session;
+  const [players, setPlayers] = useState([]);
 
-  // Placeholder for real-time players (will be handled by WebSockets later)
-  const players = ["PlayerOne", "QuizMaster99", "Waiting..."]; 
+  useWebSocket({
+    gamePin: gamePin ? parseInt(gamePin) : null,
+    nickname: null,
+    onPlayersUpdate: (updatedPlayers) => setPlayers([...updatedPlayers]),
+  });
 
   if (!session) return <div className="text-white">Loading session...</div>;
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center p-8">
+
       {/* Top Info */}
       <div className="w-full max-w-4xl flex justify-between items-center mb-12">
         <div>
@@ -25,7 +33,9 @@ function HostLobby() {
 
       {/* PIN Section */}
       <div className="bg-gray-900 border border-white/10 rounded-3xl p-12 text-center mb-12 w-full max-w-md shadow-2xl">
-        <p className="text-white/40 mb-2 uppercase font-semibold">Join at <span className="text-violet-400">your-url.com</span></p>
+        <p className="text-white/40 mb-2 uppercase font-semibold">
+          Join at <span className="text-violet-400">localhost:3000/game/{session.gamePin}</span>
+        </p>
         <h1 className="text-7xl font-black tracking-tighter text-white">
           {session.gamePin}
         </h1>
@@ -37,14 +47,17 @@ function HostLobby() {
           <Users className="text-violet-400" />
           <h3 className="text-xl font-semibold">{players.length} Players Joined</h3>
         </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {players.map((p, i) => (
-            <div key={i} className="bg-white/5 border border-white/5 p-4 rounded-xl text-center animate-pulse">
-              <span className="font-medium text-white/80">{p}</span>
-            </div>
-          ))}
-        </div>
+        {players.length === 0 ? (
+          <p className="text-white/30 text-center py-10">Waiting for players to join...</p>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {players.map((p, i) => (
+              <div key={i} className="bg-white/5 border border-white/5 p-4 rounded-xl text-center">
+                <span className="font-medium text-white/80">{p}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

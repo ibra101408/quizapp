@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MyQuizzes from "./pages/MyQuizzes";
+import JoinGame from "./pages/JoinGame";
 
 const router = createBrowserRouter([
   { path: "/Login", element: <Login /> },
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
     )
   },
   { path: "/MyQuizzes", element: <ProtectedRoute><MyQuizzes /></ProtectedRoute> },
+  { path: "/game/:gamePin", element: <JoinGame /> },
 ]);
 
 function App() {
