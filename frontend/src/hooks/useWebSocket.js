@@ -6,6 +6,8 @@ const WS_URL = "http://localhost:8080/ws";
 
 export function useWebSocket({ gamePin, nickname, onPlayersUpdate }) {
   const clientRef = useRef(null);
+  const onPlayersUpdateRef = useRef(onPlayersUpdate);
+  onPlayersUpdateRef.current = onPlayersUpdate;
 
   const disconnect = useCallback(() => {
     if (clientRef.current?.active) {
@@ -18,17 +20,13 @@ export function useWebSocket({ gamePin, nickname, onPlayersUpdate }) {
 
     const client = new Client({
       webSocketFactory: () => new SockJS(WS_URL),
-      reconnectDelay: 5000, // auto-reconnect after 5 seconds
+      reconnectDelay: 5000,
       onConnect: () => {
         console.log("WebSocket connected");
-
-        // Subscribe to player list updates for this game
         client.subscribe(`/topic/game/${gamePin}/players`, (message) => {
           const data = JSON.parse(message.body);
-          if (onPlayersUpdate) onPlayersUpdate(data.players);
+          if (onPlayersUpdateRef.current) onPlayersUpdateRef.current(data.players);
         });
-
-        // Send join message if nickname provided
         if (nickname) {
           client.publish({
             destination: "/app/game.join",

@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useWebSocket } from "../hooks/useWebSocket";
 
 function JoinGame() {
   const { gamePin } = useParams();
-  const navigate = useNavigate();
   const [nickname, setNickname] = useState("");
   const [joined, setJoined] = useState(false);
   const [error, setError] = useState(null);
 
-  const { disconnect } = useWebSocket({
+  useWebSocket({
     gamePin: joined ? parseInt(gamePin) : null,
     nickname: joined ? nickname : null,
     onPlayersUpdate: () => {},
