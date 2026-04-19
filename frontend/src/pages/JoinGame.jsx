@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useWebSocket } from "../hooks/useWebSocket";
 
@@ -6,12 +6,19 @@ function JoinGame() {
   const { gamePin } = useParams();
   const [nickname, setNickname] = useState("");
   const [joined, setJoined] = useState(false);
+  const [kicked, setKicked] = useState(false);
   const [error, setError] = useState(null);
+
+  const onKicked = useCallback(() => {
+    setKicked(true);
+    setJoined(false);
+  }, []);
 
   useWebSocket({
     gamePin: joined ? parseInt(gamePin) : null,
     nickname: joined ? nickname : null,
     onPlayersUpdate: () => {},
+    onKicked,
   });
 
   function handleJoin() {
@@ -20,6 +27,20 @@ function JoinGame() {
       return;
     }
     setJoined(true);
+  }
+
+  if (kicked) {
+    return (
+      <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-8">
+        <div className="bg-gray-900 border border-red-500/30 rounded-3xl p-12 text-center max-w-md w-full">
+          <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-6">
+            <span className="text-3xl">🚫</span>
+          </div>
+          <h1 className="text-2xl font-bold mb-2 text-red-400">You have been kicked</h1>
+          <p className="text-white/40">The host removed you from this game.</p>
+        </div>
+      </div>
+    );
   }
 
   if (joined) {
@@ -50,7 +71,6 @@ function JoinGame() {
         <div className="w-9 h-9 rounded-xl bg-violet-500 flex items-center justify-center text-sm font-bold mx-auto mb-8">Q</div>
         <h1 className="text-2xl font-bold mb-2">Join Game</h1>
         <p className="text-white/40 mb-8">Game PIN: <span className="text-white font-bold">{gamePin}</span></p>
-
         <input
           type="text"
           placeholder="Enter your nickname..."
@@ -60,9 +80,7 @@ function JoinGame() {
           maxLength={20}
           className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/25 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition mb-4"
         />
-
         {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
-
         <button
           onClick={handleJoin}
           disabled={!nickname.trim()}

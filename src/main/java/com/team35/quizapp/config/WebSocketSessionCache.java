@@ -81,4 +81,9 @@ public class WebSocketSessionCache {
     public String getNicknameBySessionId(String wsSessionId) {
         return nicknameBySessionId.get(wsSessionId);
     }
+    public String getSessionIdByNickname(Integer gamePin, String nickname) {
+        Map<String, String> pinReconnectMap = reconnectMap.get(gamePin);
+        if (pinReconnectMap == null) return null;
+        return pinReconnectMap.get(nickname);
+    }
 }
