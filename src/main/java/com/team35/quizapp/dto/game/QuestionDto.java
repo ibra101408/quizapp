@@ -8,6 +8,7 @@ import java.util.List;
 public record QuestionDto(
         Long id,
         String text,
+        String imageUrl,   
         Integer timeLimit,   // seconds the player has to answer (set per question when creating the quiz)
         List<AnswerDto> answers
 ) {

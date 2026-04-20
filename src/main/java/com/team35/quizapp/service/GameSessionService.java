@@ -124,6 +124,7 @@ public class GameSessionService {
                 .map(sq -> new QuestionDto(
                         sq.getQuestion().getId(),
                         sq.getQuestion().getText(),
+                        sq.getQuestion().getImageUrl(),
                         sq.getQuestion().getTimeLimit(),
                         sq.getQuestion().getAnswers().stream()
                                 // isCorrect is intentionally excluded from AnswerDto —

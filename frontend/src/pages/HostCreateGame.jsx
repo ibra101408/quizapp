@@ -13,6 +13,7 @@ function HostCreateGame() {
   const [theme, setTheme] = useState(existingQuiz?.theme || "");
   const [questions, setQuestions] = useState(existingQuiz?.questions || []);
   const [questionText, setQuestionText] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [timeLimit, setTimeLimit] = useState(30);
   const [answers, setAnswers] = useState(["", "", "", ""]);
   const [correct, setCorrect] = useState([]);
@@ -43,16 +44,25 @@ function HostCreateGame() {
       text: answer,
       isCorrect: correct.includes(index),
     }));
-    const newQuestion = { text: questionText, timeLimit, questionType, answers: formattedAnswers };
+    const newQuestion = { 
+      text: questionText, 
+      imageUrl: imageUrl,
+      timeLimit, 
+      questionType, 
+      answers: formattedAnswers 
+    };
+
     setQuestions([...questions, newQuestion]);
+    
     setQuestionText("");
+    setImageUrl("");
     setTimeLimit(30);
     setAnswers(["", "", "", ""]);
     setCorrect([]);
   }
 
   async function saveQuiz() {
-    const quiz = { title, theme, questions };
+    const quiz = { title, theme, imageUrl, questions };
     try {
       const response = await createQuiz(quiz);
       console.log("Quiz saved:", response.data);
@@ -259,6 +269,27 @@ function HostCreateGame() {
                 value={questionText}
                 onChange={(e) => setQuestionText(e.target.value)}
               />
+            </div>
+            {/* Image URL input - NEW SECTION */}
+            <div className="mb-6">
+              <label className="block text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">
+                Image URL (Optional)
+              </label>
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500 transition"
+                  placeholder="https://example.com/image.png"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                />
+                {imageUrl && (
+                  <div className="w-12 h-10 rounded-lg border border-white/10 overflow-hidden bg-white/5">
+                    <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+              <p className="text-[10px] text-white/20 mt-1 uppercase tracking-tight">Paste a direct link to an image (jpg, png, webp)</p>
             </div>
 
             {/* Time limit */}

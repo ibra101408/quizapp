@@ -26,6 +26,9 @@ public class Question {
     private Integer timeLimit;
     private String version;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Answer> answers = new ArrayList<>();

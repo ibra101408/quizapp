@@ -49,6 +49,7 @@ public class QuizService {
             Question question = Question.builder()
                     .text(qReq.text())
                     .timeLimit(qReq.timeLimit())
+                    .imageUrl(qReq.imageUrl())
                     .questionType("MULTIPLE_CHOICE")
                     .build();
 
