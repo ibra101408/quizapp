@@ -1,7 +1,7 @@
 import { Users, Play } from "lucide-react";
 import { useState } from "react";
 import { useWebSocket } from "../hooks/useWebSocket";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getToken } from "../services/authService";
 
@@ -13,6 +13,7 @@ function HostLobby() {
   const session = state?.session;
   const [players, setPlayers] = useState([]);
   const [gameStarted, setGameStarted] = useState(false);
+  const navigate = useNavigate();
 
   useWebSocket({
     gamePin: gamePin ? parseInt(gamePin) : null,
@@ -38,6 +39,7 @@ function HostLobby() {
             headers: { Authorization: `Bearer ${getToken()}` }
         });
         setGameStarted(true);
+        navigate(`/host-game/${gamePin}`, { state: { session } });
     } catch (err) {
         console.error("Failed to start game", err);
         alert("Failed to start game.");

@@ -4,12 +4,13 @@ import SockJS from "sockjs-client";
 
 const WS_URL = "http://localhost:8080/ws";
 
-export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked }) {
+export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQuestionReceived }) {
   const clientRef = useRef(null);
   const onPlayersUpdateRef = useRef(onPlayersUpdate);
   const onKickedRef = useRef(onKicked);
   onPlayersUpdateRef.current = onPlayersUpdate;
   onKickedRef.current = onKicked;
+
 
   const disconnect = useCallback(() => {
     if (clientRef.current?.active) {
@@ -25,6 +26,13 @@ export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked }) {
       reconnectDelay: 5000,
       onConnect: () => {
         console.log("WebSocket connected");
+
+        client.subscribe(`/topic/game/${gamePin}/question`, (message) => {
+          const questionData = JSON.parse(message.body);
+          if (onQuestionReceived) {
+            onQuestionReceived(questionData);
+          }
+        });
 
         // Subscribe to player list updates
         client.subscribe(`/topic/game/${gamePin}/players`, (message) => {
@@ -64,7 +72,7 @@ export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked }) {
     return () => {
       client.deactivate();
     };
-  }, [gamePin, nickname]);
+  }, [gamePin, nickname, onQuestionReceived]);
 
   return { disconnect };
 }

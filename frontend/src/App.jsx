@@ -7,6 +7,7 @@ import Register from "./pages/Register";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MyQuizzes from "./pages/MyQuizzes";
 import JoinGame from "./pages/JoinGame";
+import HostGame from "./pages/HostGame";
 
 const router = createBrowserRouter([
   { path: "/Login", element: <Login /> },
@@ -36,8 +37,21 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     )
   },
-  { path: "/MyQuizzes", element: <ProtectedRoute><MyQuizzes /></ProtectedRoute> },
+  { 
+    path: "/MyQuizzes", 
+    element: 
+      <ProtectedRoute>
+        <MyQuizzes />
+      </ProtectedRoute> 
+    },
   { path: "/game/:gamePin", element: <JoinGame /> },
+  {
+    path: "/host-game/:gamePin", 
+    element: 
+      <ProtectedRoute>
+        <HostGame />
+      </ProtectedRoute>
+  }
 ]);
 
 function App() {
