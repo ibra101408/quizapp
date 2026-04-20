@@ -9,6 +9,8 @@ import com.team35.quizapp.entity.enums.GameStatus;
 import com.team35.quizapp.repository.GameSessionRepository;
 import com.team35.quizapp.repository.QuizRepository;
 import com.team35.quizapp.repository.UserRepository;
+import com.team35.quizapp.controller.WebSocketController;
+import com.team35.quizapp.dto.websocket.QuestionMessage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -29,6 +32,8 @@ public class GameSessionService {
 
     private final GameSessionRepository gameSessionRepository;
     private final QuizRepository quizRepository;
+
+    private final WebSocketController webSocketController;
 
     // Called when the host clicks "Create Session" in the frontend.
     // Creates a session in WAITING state — players can join but the game has not started yet.
@@ -86,6 +91,30 @@ public class GameSessionService {
 
         return toResponse(saved);
     }
+    
+
+    @Transactional
+    public void startGame(Integer gamePin, String email) {
+        GameSession session = gameSessionRepository.findByGamePin(gamePin)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Game session not found"));
+
+        if (!session.getHost().getEmail().equals(email)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the host can start the game");
+        }
+
+        if (session.getStatus() != GameStatus.WAITING) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Game is not in WAITING state");
+        }
+
+        session.setStatus(GameStatus.IN_PROGRESS);
+        session.setCurrentQuestionIndex(0);
+        session.setQuestionStartedAt(LocalDateTime.now());
+        gameSessionRepository.save(session);
+        log.info("Game started: pin={}", gamePin);
+
+        webSocketController.broadcastQuestion(session);
+    }
+
 
     // Converts the saved GameSession entity into the response DTO.
     // Questions are sorted by orderIndex to guarantee correct order.

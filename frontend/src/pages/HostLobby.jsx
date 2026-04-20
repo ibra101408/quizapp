@@ -12,6 +12,7 @@ function HostLobby() {
   const { gamePin } = useParams();
   const session = state?.session;
   const [players, setPlayers] = useState([]);
+  const [gameStarted, setGameStarted] = useState(false);
 
   useWebSocket({
     gamePin: gamePin ? parseInt(gamePin) : null,
@@ -31,6 +32,18 @@ function HostLobby() {
     }
   }
 
+  async function handleStart() {
+    try {
+        await axios.put(`${API_URL}/sessions/${gamePin}/start`, {}, {
+            headers: { Authorization: `Bearer ${getToken()}` }
+        });
+        setGameStarted(true);
+    } catch (err) {
+        console.error("Failed to start game", err);
+        alert("Failed to start game.");
+    }
+}
+
   if (!session) return <div className="text-white">Loading session...</div>;
 
   return (
@@ -41,9 +54,13 @@ function HostLobby() {
           <h2 className="text-white/40 uppercase tracking-widest text-sm">Quiz Title</h2>
           <h1 className="text-2xl font-bold">{session.quizTitle}</h1>
         </div>
-        <button className="bg-green-500 hover:bg-green-400 px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition transform hover:scale-105">
-          <Play fill="currentColor" /> Start Game
-        </button>
+        <button 
+    	    onClick={handleStart} 
+            disabled={gameStarted}
+    	    className="bg-green-500 hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition transform hover:scale-105"
+	>
+    	    <Play fill="currentColor" /> {gameStarted ? "Game In Progress" : "Start Game"}
+	</button>
       </div>
 
       {/* PIN Section */}

@@ -54,4 +54,16 @@ public class GameSessionController {
     // 2. Pass to service to handle the ID lookup
     return gameSessionService.createSession(request, email);
     }
+    
+    @Operation(summary = "Start a game session")
+    @PutMapping("/{gamePin}/start")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void startGame(@PathVariable Integer gamePin) {
+        String email = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication().getName();
+        gameSessionService.startGame(gamePin, email);
+    }
+    
+
+
 }

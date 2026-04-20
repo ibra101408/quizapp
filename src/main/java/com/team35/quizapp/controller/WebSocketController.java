@@ -14,10 +14,14 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import com.team35.quizapp.entity.GameSession;
+import com.team35.quizapp.entity.SessionQuestion;
+import com.team35.quizapp.dto.websocket.QuestionMessage;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 @Slf4j
 @Controller
@@ -87,5 +91,32 @@ public class WebSocketController {
             "/topic/game/" + gamePin + "/kicked",
             new PlayerListMessage(java.util.Set.of(nickname))
         );
+    }
+
+    public void broadcastQuestion(GameSession session) {
+        SessionQuestion currentSq = session.getSessionQuestions().stream()
+                .sorted(Comparator.comparingInt(SessionQuestion::getOrderIndex))
+               .filter(sq -> sq.getOrderIndex() == session.getCurrentQuestionIndex())
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        List<QuestionMessage.AnswerOption> answerOptions = currentSq.getQuestion().getAnswers().stream()
+                .map(a -> new QuestionMessage.AnswerOption(a.getId(), a.getText()))
+                .toList();
+
+        QuestionMessage questionMessage = new QuestionMessage(
+               currentSq.getQuestion().getId(),
+               currentSq.getQuestion().getText(),
+               currentSq.getQuestion().getTimeLimit(),
+               session.getCurrentQuestionIndex(),
+               session.getSessionQuestions().size(),
+                answerOptions
+        );
+
+        messagingTemplate.convertAndSend(
+                "/topic/game/" + session.getGamePin() + "/question",
+                questionMessage
+        );
+        log.info("Question broadcast: pin={}, questionIndex={}", session.getGamePin(), session.getCurrentQuestionIndex());
     }
 }
