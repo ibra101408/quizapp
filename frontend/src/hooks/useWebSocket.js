@@ -4,12 +4,14 @@ import SockJS from "sockjs-client";
 
 const WS_URL = "http://localhost:8080/ws";
 
-export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked }) {
+export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQuestion }) {
   const clientRef = useRef(null);
   const onPlayersUpdateRef = useRef(onPlayersUpdate);
   const onKickedRef = useRef(onKicked);
+  const onQuestionRef = useRef(onQuestion);
   onPlayersUpdateRef.current = onPlayersUpdate;
   onKickedRef.current = onKicked;
+  onQuestionRef.current = onQuestion;
 
   const disconnect = useCallback(() => {
     if (clientRef.current?.active) {
@@ -32,6 +34,12 @@ export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked }) {
           if (onPlayersUpdateRef.current) onPlayersUpdateRef.current(data.players);
         });
 
+        // Subscribe to question broadcasts
+        client.subscribe(`/topic/game/${gamePin}/question`, (message) => {
+          const data = JSON.parse(message.body);
+          if (onQuestionRef.current) onQuestionRef.current(data);
+        });
+
         // Subscribe to kicked events (players only)
         if (nickname) {
           client.subscribe(`/topic/game/${gamePin}/kicked`, (message) => {
@@ -41,7 +49,7 @@ export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked }) {
             console.log("Kicked nickname:", kickedNickname, "My nickname:", nickname);
             if (kickedNickname === nickname && onKickedRef.current) {
               onKickedRef.current();
-    	    }
+            }
           });
 
           client.publish({
