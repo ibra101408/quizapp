@@ -38,7 +38,7 @@ function HostLobby() {
     if (timeLeft === 0 && phase === "playing" && !questionEndedRef.current) {
       handleEndQuestion();
     }
-  }, [timeLeft, phase]);
+  }, [timeLeft, phase, handleEndQuestion]);
 
   const onQuestion = useCallback((question) => {
     setCurrentQuestion(question);
