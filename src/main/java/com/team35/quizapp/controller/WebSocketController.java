@@ -1,11 +1,12 @@
 package com.team35.quizapp.controller;
 
 import com.team35.quizapp.config.WebSocketSessionCache;
-import com.team35.quizapp.dto.websocket.JoinMessage;
-import com.team35.quizapp.dto.websocket.PlayerListMessage;
+import com.team35.quizapp.dto.websocket.*;
 import com.team35.quizapp.entity.GameSession;
 import com.team35.quizapp.entity.Player;
+import com.team35.quizapp.entity.SessionQuestion;
 import com.team35.quizapp.repository.GameSessionRepository;
+import com.team35.quizapp.repository.PlayerAnswerRepository;
 import com.team35.quizapp.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,14 +15,12 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import com.team35.quizapp.entity.GameSession;
-import com.team35.quizapp.entity.SessionQuestion;
-import com.team35.quizapp.dto.websocket.QuestionMessage;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.Comparator;
 
 @Slf4j
 @Controller
@@ -32,6 +31,7 @@ public class WebSocketController {
     private final WebSocketSessionCache sessionCache;
     private final GameSessionRepository gameSessionRepository;
     private final PlayerRepository playerRepository;
+    private final PlayerAnswerRepository playerAnswerRepository;
 
     @MessageMapping("/game.join")
     public void joinGame(@Payload JoinMessage message,
@@ -40,7 +40,6 @@ public class WebSocketController {
         Integer gamePin = message.gamePin();
         String nickname = message.nickname();
 
-        // Check if player is kicked
         playerRepository.findByGameSessionGamePinAndNickname(gamePin, nickname)
                 .ifPresent(p -> {
                     if (Boolean.TRUE.equals(p.getIsKicked())) {
@@ -53,7 +52,6 @@ public class WebSocketController {
                     }
                 });
 
-        // Save player to DB if not already there
         playerRepository.findByGameSessionGamePinAndNickname(gamePin, nickname)
                 .orElseGet(() -> {
                     GameSession session = gameSessionRepository.findByGamePin(gamePin)
@@ -65,11 +63,8 @@ public class WebSocketController {
                     return playerRepository.save(player);
                 });
 
-        // Add to session cache
         sessionCache.addSession(gamePin, wsSessionId, nickname);
         log.info("Player joined: nickname={}, pin={}", nickname, gamePin);
-
-        // Broadcast updated player list
         broadcastPlayerList(gamePin);
     }
 
@@ -79,24 +74,20 @@ public class WebSocketController {
                 .filter(p -> !Boolean.TRUE.equals(p.getIsKicked()))
                 .map(Player::getNickname)
                 .collect(Collectors.toSet());
-
-        messagingTemplate.convertAndSend(
-                "/topic/game/" + gamePin + "/players",
-                new PlayerListMessage(nicknames)
-        );
+        messagingTemplate.convertAndSend("/topic/game/" + gamePin + "/players", new PlayerListMessage(nicknames));
     }
 
     public void broadcastKick(Integer gamePin, String nickname) {
         messagingTemplate.convertAndSend(
-            "/topic/game/" + gamePin + "/kicked",
-            new PlayerListMessage(java.util.Set.of(nickname))
+                "/topic/game/" + gamePin + "/kicked",
+                new PlayerListMessage(java.util.Set.of(nickname))
         );
     }
 
     public void broadcastQuestion(GameSession session) {
         SessionQuestion currentSq = session.getSessionQuestions().stream()
                 .sorted(Comparator.comparingInt(SessionQuestion::getOrderIndex))
-               .filter(sq -> sq.getOrderIndex() == session.getCurrentQuestionIndex())
+                .filter(sq -> sq.getOrderIndex() == session.getCurrentQuestionIndex())
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
@@ -105,18 +96,37 @@ public class WebSocketController {
                 .toList();
 
         QuestionMessage questionMessage = new QuestionMessage(
-               currentSq.getQuestion().getId(),
-               currentSq.getQuestion().getText(),
-               currentSq.getQuestion().getTimeLimit(),
-               session.getCurrentQuestionIndex(),
-               session.getSessionQuestions().size(),
+                currentSq.getQuestion().getId(),
+                currentSq.getQuestion().getText(),
+                currentSq.getQuestion().getTimeLimit(),
+                session.getCurrentQuestionIndex(),
+                session.getSessionQuestions().size(),
                 answerOptions
         );
 
-        messagingTemplate.convertAndSend(
-                "/topic/game/" + session.getGamePin() + "/question",
-                questionMessage
-        );
+        messagingTemplate.convertAndSend("/topic/game/" + session.getGamePin() + "/question", questionMessage);
         log.info("Question broadcast: pin={}, questionIndex={}", session.getGamePin(), session.getCurrentQuestionIndex());
+    }
+
+    public void broadcastAnswerCount(Integer gamePin, Long questionId) {
+        long answered = playerAnswerRepository.countByPlayerGameSessionGamePinAndQuestionId(gamePin, questionId);
+        long total = playerRepository.findByGameSessionGamePin(gamePin).stream()
+                .filter(p -> !Boolean.TRUE.equals(p.getIsKicked()))
+                .count();
+        messagingTemplate.convertAndSend(
+                "/topic/game/" + gamePin + "/answer-count",
+                new AnswerCountMessage((int) answered, (int) total)
+        );
+        log.info("Answer count broadcast: pin={}, answered={}/{}", gamePin, answered, total);
+    }
+
+    public void broadcastQuestionResult(Integer gamePin, QuestionResultMessage message) {
+        messagingTemplate.convertAndSend("/topic/game/" + gamePin + "/question-result", message);
+        log.info("Question result broadcast: pin={}, correctAnswerId={}", gamePin, message.correctAnswerId());
+    }
+
+    public void broadcastGameEnded(Integer gamePin) {
+        messagingTemplate.convertAndSend("/topic/game/" + gamePin + "/ended", (Object) Map.of("ended", true));
+        log.info("Game ended broadcast: pin={}", gamePin);
     }
 }
