@@ -34,6 +34,20 @@ function HostLobby() {
     return () => clearTimeout(timer);
   }, [timeLeft]);
 
+  const handleEndQuestion = useCallback(async () => {
+    if (questionEndedRef.current) return;
+    questionEndedRef.current = true;
+    setTimeLeft(0);
+    try {
+      await axios.put(`${API_URL}/sessions/${gamePin}/end-question`, {}, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+    } catch (err) {
+      console.error("Failed to end question", err);
+      questionEndedRef.current = false;
+    }
+  }, [gamePin]);
+
   useEffect(() => {
     if (timeLeft === 0 && phase === "playing" && !questionEndedRef.current) {
       handleEndQuestion();
@@ -89,20 +103,6 @@ function HostLobby() {
       alert("Failed to start game.");
     }
   }
-
-  const handleEndQuestion = useCallback(async () => {
-    if (questionEndedRef.current) return;
-    questionEndedRef.current = true;
-    setTimeLeft(0);
-    try {
-      await axios.put(`${API_URL}/sessions/${gamePin}/end-question`, {}, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
-    } catch (err) {
-      console.error("Failed to end question", err);
-      questionEndedRef.current = false;
-    }
-  }, [gamePin]);
 
   async function handleNextQuestion() {
     try {
