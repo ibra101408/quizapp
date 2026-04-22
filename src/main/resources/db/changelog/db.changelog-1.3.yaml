@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.3-player-answer-answer-fk-set-null
+      author: sergei
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: player_answer
+            constraintName: fk_player_answer_answer
+        - addForeignKeyConstraint:
+            baseTableName: player_answer
+            baseColumnNames: answer_id
+            referencedTableName: answer
+            referencedColumnNames: id
+            constraintName: fk_player_answer_answer
+            onDelete: SET NULL

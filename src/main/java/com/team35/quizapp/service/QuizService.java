@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
@@ -23,29 +24,78 @@ public class QuizService {
     private final QuizRepository quizRepository;
     private final UserRepository userRepository;
 
-    /**
-     * Helper method to safely extract the email from the Security Context
-     */
     private String getCurrentUserEmail() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof String) {
-            return (String) principal;
-        } else if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        }
+        if (principal instanceof String) return (String) principal;
+        else if (principal instanceof UserDetails) return ((UserDetails) principal).getUsername();
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User session not found");
     }
 
     public QuizResponse createQuiz(CreateQuizRequest request) {
-        // 1. Get the email from Principal (it's a String in JWT flow)
         String email = getCurrentUserEmail();
-
-        // 2. Fetch the actual User Entity from the DB
         User currentUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        // 3. Build questions and answers
-        List<Question> questions = request.questions().stream().map(qReq -> {
+        List<Question> questions = buildQuestions(request.questions());
+
+        Quiz quiz = Quiz.builder()
+                .title(request.title())
+                .theme(request.theme())
+                .creator(currentUser)
+                .questions(questions)
+                .build();
+
+        questions.forEach(q -> q.setQuiz(quiz));
+
+        Quiz saved = quizRepository.save(quiz);
+        return toResponse(saved);
+    }
+
+    @Transactional
+    public QuizResponse updateQuiz(Long id, CreateQuizRequest request) {
+        String email = getCurrentUserEmail();
+
+        Quiz quiz = quizRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found"));
+
+        if (!quiz.getCreator().getEmail().equals(email)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot edit someone else's quiz");
+        }
+
+        // Update basic fields
+        quiz.setTitle(request.title());
+        quiz.setTheme(request.theme());
+
+        // Replace all questions — orphanRemoval on Quiz.questions handles deletion
+        quiz.getQuestions().clear();
+
+        List<Question> newQuestions = buildQuestions(request.questions());
+        newQuestions.forEach(q -> q.setQuiz(quiz));
+        quiz.getQuestions().addAll(newQuestions);
+
+        Quiz saved = quizRepository.save(quiz);
+        return toResponse(saved);
+    }
+
+    public List<QuizResponse> getMyQuizzes() {
+        String email = getCurrentUserEmail();
+        return quizRepository.findByCreatorEmail(email).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public void deleteQuiz(Long id) {
+        String email = getCurrentUserEmail();
+        Quiz quiz = quizRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found"));
+        if (!quiz.getCreator().getEmail().equals(email)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete someone else's quiz");
+        }
+        quizRepository.delete(quiz);
+    }
+
+    private List<Question> buildQuestions(List<CreateQuestionRequest> questionRequests) {
+        return questionRequests.stream().map(qReq -> {
             Question question = Question.builder()
                     .text(qReq.text())
                     .timeLimit(qReq.timeLimit())
@@ -64,41 +114,6 @@ public class QuizService {
             question.setAnswers(answers);
             return question;
         }).toList();
-
-        // 4. Build quiz and link the creator (User object)
-        Quiz quiz = Quiz.builder()
-                .title(request.title())
-                .theme(request.theme())
-                .creator(currentUser)
-                .questions(questions)
-                .build();
-
-        questions.forEach(q -> q.setQuiz(quiz));
-
-        Quiz saved = quizRepository.save(quiz);
-        return toResponse(saved);
-    }
-
-    public List<QuizResponse> getMyQuizzes() {
-        String email = getCurrentUserEmail();
-
-        return quizRepository.findByCreatorEmail(email).stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
-    public void deleteQuiz(Long id) {
-        String email = getCurrentUserEmail();
-
-        Quiz quiz = quizRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found"));
-
-        // Ownership check: Only the creator can delete their quiz
-        if (!quiz.getCreator().getEmail().equals(email)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete someone else's quiz");
-        }
-
-        quizRepository.delete(quiz);
     }
 
     private QuizResponse toResponse(Quiz quiz) {

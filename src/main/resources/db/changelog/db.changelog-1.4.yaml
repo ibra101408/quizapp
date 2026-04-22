@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.4-player-answer-answer-id-nullable
+      author: sergei
+      changes:
+        - dropNotNullConstraint:
+            tableName: player_answer
+            columnName: answer_id
+            columnDataType: bigint

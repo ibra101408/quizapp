@@ -25,6 +25,12 @@ public class QuizController {
         return quizService.createQuiz(request);
     }
 
+    @Operation(summary = "Update an existing quiz")
+    @PutMapping("/{id}")
+    public QuizResponse updateQuiz(@PathVariable Long id, @RequestBody CreateQuizRequest request) {
+        return quizService.updateQuiz(id, request);
+    }
+
     @Operation(summary = "Get my quizzes")
     @GetMapping
     public List<QuizResponse> getMyQuizzes() {

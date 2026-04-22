@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.5-fix-question-fk-constraints
+      author: sergei
+      changes:
+        # session_question.question_id — cascade delete so removing a question removes the session snapshot row
+        - dropForeignKeyConstraint:
+            baseTableName: session_question
+            constraintName: fk_session_question_question
+        - addForeignKeyConstraint:
+            baseTableName: session_question
+            baseColumnNames: question_id
+            referencedTableName: question
+            referencedColumnNames: id
+            constraintName: fk_session_question_question
+            onDelete: CASCADE
+        # player_answer.question_id — set null so removing a question doesn't delete score history
+        - dropForeignKeyConstraint:
+            baseTableName: player_answer
+            constraintName: fk_player_answer_question
+        - addForeignKeyConstraint:
+            baseTableName: player_answer
+            baseColumnNames: question_id
+            referencedTableName: question
+            referencedColumnNames: id
+            constraintName: fk_player_answer_question
+            onDelete: SET NULL
+        - dropNotNullConstraint:
+            tableName: player_answer
+            columnName: question_id
+            columnDataType: bigint

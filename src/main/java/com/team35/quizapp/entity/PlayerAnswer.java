@@ -6,11 +6,11 @@ import lombok.*;
 
 @Entity
 @Table(
-    name = "player_answer",
-    uniqueConstraints = @UniqueConstraint(
-        name = "uq_player_answer_player_question",
-        columnNames = {"player_id", "question_id"}
-    )
+        name = "player_answer",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uq_player_answer_player_question_answer",
+                columnNames = {"player_id", "question_id", "answer_id"}
+        )
 )
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class PlayerAnswer {
@@ -25,11 +25,11 @@ public class PlayerAnswer {
     private Player player;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id", nullable = false)
+    @JoinColumn(name = "question_id", nullable = true)
     private Question question;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "answer_id", nullable = false)
+    @JoinColumn(name = "answer_id", nullable = true)
     private Answer answer;
 
     private Integer responseTime;
