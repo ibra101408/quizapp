@@ -39,17 +39,23 @@ function HostCreateGame() {
   }, [title, theme, questions, isEditing]);
 
   function toggleCorrect(index) {
-    if (correct.includes(index)) {
-      setCorrect(correct.filter((i) => i !== index));
+    if (questionType === "truefalse") {
+      // Only True (index 0) can be marked correct
+      if (index !== 0) return;
+      setCorrect([0]);
     } else {
-      setCorrect([...correct, index]);
+      if (correct.includes(index)) {
+        setCorrect(correct.filter((i) => i !== index));
+      } else {
+        setCorrect([...correct, index]);
+      }
     }
   }
 
   function handleTypeChange(type) {
     setQuestionType(type);
     if (type === "truefalse") {
-      setAnswers(["True answer here", "False answer here"]);
+      setAnswers(["True", "False"]);
       setCorrect([0]);
     } else {
       setAnswers(["", "", "", ""]);
@@ -335,7 +341,8 @@ function HostCreateGame() {
                 const color = answerColors[i];
                 const isCorrect = correct.includes(i);
                 return (
-                  <div key={i} onClick={() => toggleCorrect(i)}
+                    <div key={i} onClick={() => questionType === "truefalse" && i === 1 ? null : toggleCorrect(i)}
+                         style={questionType === "truefalse" && i === 1 ? { cursor: "default" } : {}}
                     className={`relative rounded-xl border-2 p-3 cursor-pointer transition-all duration-150 ${isCorrect ? `${color.border} ${color.bg}` : "border-white/10 bg-white/5 hover:border-white/20"}`}
                   >
                     <div className="flex items-center gap-2 mb-2">
@@ -346,11 +353,17 @@ function HostCreateGame() {
                     </div>
                     <div className="flex items-center gap-2">
                       <input
-                        className={`w-full bg-transparent text-sm focus:outline-none placeholder-white/30 ${isCorrect ? "text-black" : "text-white"}`}
-                        placeholder={`Answer ${answerLabels[i]}...`}
-                        value={a}
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => { const copy = [...answers]; copy[i] = e.target.value; setAnswers(copy); }}
+                          className={`w-full bg-transparent text-sm focus:outline-none placeholder-white/30 ${isCorrect ? "text-black" : "text-white"} ${questionType === "truefalse" ? "cursor-default select-none" : ""}`}
+                          placeholder={`Answer ${answerLabels[i]}...`}
+                          value={a}
+                          readOnly={questionType === "truefalse"}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => {
+                            if (questionType === "truefalse") return;
+                            const copy = [...answers];
+                            copy[i] = e.target.value;
+                            setAnswers(copy);
+                          }}
                       />
                       {answers.length > 2 && (
                         <button onClick={(e) => {
