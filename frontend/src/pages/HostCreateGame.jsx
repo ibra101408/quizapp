@@ -92,6 +92,7 @@ function HostCreateGame() {
     setTimeLimit(30);
     setAnswers(["", "", "", ""]);
     setCorrect([]);
+    setQuestionType("multiple");
   }
 
   // Save as new quiz (always creates a new one)
@@ -154,7 +155,21 @@ function HostCreateGame() {
           <button onClick={() => navigate("/Home")} className="ml-6 text-sm text-white/50 hover:text-white transition">
             My Quizzes
           </button>
-          <button onClick={() => navigate("/HostCreateGame")} className="ml-4 text-sm text-white/50 hover:text-white transition">
+          <button onClick={() => {
+            setTitle("");
+            setTheme("");
+            setQuestions([]);
+            setQuestionText("");
+            setImageUrl("");
+            setTimeLimit(30);
+            setAnswers(["", "", "", ""]);
+            setCorrect([]);
+            setActiveQuestion(null);
+            setQuestionType("multiple");
+            setIsModified(false);
+            initialStateRef.current = { title: "", theme: "", questions: "[]" };
+            navigate("/HostCreateGame", { state: null });
+          }} className="ml-4 text-sm text-white/50 hover:text-white transition">
             + New Quiz
           </button>
         </div>
