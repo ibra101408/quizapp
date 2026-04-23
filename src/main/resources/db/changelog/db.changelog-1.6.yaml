@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: change-image-url-to-text
+      author: your-name
+      changes:
+        - modifyDataType:
+            tableName: question
+            columnName: image_url
+            newDataType: text
