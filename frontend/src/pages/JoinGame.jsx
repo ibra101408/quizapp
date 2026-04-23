@@ -51,7 +51,9 @@ function JoinGame() {
   }, []);
 
   const onQuestion = useCallback((question) => {
-    setCurrentQuestion(question);
+    // Shuffle answers so each player sees a different order
+    const shuffled = [...question.answers].sort(() => Math.random() - 0.5);
+    setCurrentQuestion({ ...question, answers: shuffled });
     setTimeLeft(question.timeLimit);
     setSelectedAnswer(null);
     setSelectedAnswers(new Set());

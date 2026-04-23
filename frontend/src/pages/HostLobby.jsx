@@ -53,7 +53,8 @@ function HostLobby() {
   }, [timeLeft, phase, handleEndQuestion]);
 
   const onQuestion = useCallback((question) => {
-    setCurrentQuestion(question);
+    const shuffled = [...question.answers].sort(() => Math.random() - 0.5);
+    setCurrentQuestion({ ...question, answers: shuffled });
     setTimeLeft(question.timeLimit);
     setAnswerCount({ answered: 0, total: 0 });
     setQuestionResult(null);
