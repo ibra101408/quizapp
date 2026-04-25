@@ -196,7 +196,7 @@ function HostLobby() {
             <h2 className="text-xl font-semibold mb-5">{currentQuestion.text}</h2>
             <div className="grid grid-cols-2 gap-3">
               {currentQuestion.answers.map((answer, i) => {
-                const isCorrect = answer.id === questionResult.correctAnswerId;
+                const isCorrect = questionResult.correctAnswerIds.includes(answer.id);
                 return (
                   <div key={answer.id} className={`${ANSWER_COLORS[i % 4]} ${isCorrect ? "ring-4 ring-white" : "opacity-40"} rounded-xl px-4 py-4 font-semibold flex items-center gap-2 transition-all`}>
                     {isCorrect && <CheckCircle size={18} />}

@@ -113,11 +113,14 @@ public class GameSessionService {
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Question not found"));
 
-        Long correctAnswerId = currentSq.getQuestion().getAnswers().stream()
+        List<Long> correctAnswerIds = currentSq.getQuestion().getAnswers().stream()
                 .filter(Answer::getIsCorrect)
                 .map(Answer::getId)
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No correct answer found"));
+                .toList();
+
+        if (correctAnswerIds.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No correct answer found");
+        }
 
         List<Player> sorted = playerRepository.findByGameSessionGamePin(gamePin).stream()
                 .filter(p -> !Boolean.TRUE.equals(p.getIsKicked()))
@@ -132,7 +135,7 @@ public class GameSessionService {
             ));
         }
 
-        webSocketController.broadcastQuestionResult(gamePin, new QuestionResultMessage(correctAnswerId, leaderboard));
+        webSocketController.broadcastQuestionResult(gamePin, new QuestionResultMessage(correctAnswerIds, leaderboard));
         log.info("Question ended: pin={}, questionIndex={}", gamePin, session.getCurrentQuestionIndex());
     }
 
