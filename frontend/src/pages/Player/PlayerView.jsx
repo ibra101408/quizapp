@@ -10,6 +10,7 @@ export default function PlayerView() {
   const question = {
     text: "Who invented the lightbulb?",
     timeLimit: 30,
+    multipleCorrect: true,
     answers: [
       { id: 1, text: "Thomas Edison" },
       { id: 2, text: "Benjamin Franklin" },
@@ -19,7 +20,7 @@ export default function PlayerView() {
   };
 
   const [timeLeft, setTimeLeft] = useState(question.timeLimit);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState([]);
 
   // TIMER
   useEffect(() => {
@@ -37,7 +38,13 @@ export default function PlayerView() {
   }, []);
 
   const handleSelect = (id) => {
-    setSelected(id);
+    if (question.multipleCorrect) {
+      setSelected((prev) =>
+        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      );
+    } else {
+      setSelected([id]);
+    }
   };
 
   const colors = [
@@ -97,6 +104,9 @@ export default function PlayerView() {
           <h1 className="text-lg font-semibold leading-snug">
             {question.text}
           </h1>
+          {question.multipleCorrect && (
+            <p className="text-xs text-[#A78BFA]/70 mt-2">Select all that apply</p>
+          )}
         </div>
         {/* ANSWERS */}
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 w-full">
@@ -105,7 +115,7 @@ export default function PlayerView() {
               key={answer.id}
               text={answer.text}
               color={colors[index]}
-              selected={selected === answer.id}
+              selected={selected.includes(answer.id)}
               onClick={() => handleSelect(answer.id)}
             />
           ))}
