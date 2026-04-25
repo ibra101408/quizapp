@@ -317,20 +317,40 @@ function JoinGame() {
   // ── WAITING PHASE ─────────────────────────────────────────────────────────
   if (joined) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-8">
-        <div className="bg-gray-900 border border-white/10 rounded-3xl p-12 text-center max-w-md w-full">
-          <div className="w-16 h-16 rounded-full bg-violet-500/20 flex items-center justify-center mx-auto mb-6">
-            <span className="text-3xl">🎮</span>
+      <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-between p-6">
+        {/* Top Header - Mobile Style */}
+        <div className="w-full flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-white/40">Playing as</p>
+            <p className="text-lg font-bold text-violet-400">{nickname}</p>
           </div>
-          <h1 className="text-2xl font-bold mb-2">You're in!</h1>
-          <p className="text-white/40 mb-6">Waiting for the host to start the game...</p>
-          <div className="bg-white/5 rounded-xl p-4 mb-4">
-            <p className="text-white/40 text-sm">Playing as</p>
-            <p className="text-xl font-bold text-violet-300">{nickname}</p>
+          <div className="text-right">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-white/40">Game PIN</p>
+            <p className="text-lg font-black tracking-tight">{gamePin}</p>
           </div>
-          <div className="bg-white/5 rounded-xl p-4">
-            <p className="text-white/40 text-sm">Game PIN</p>
-            <p className="text-2xl font-black">{gamePin}</p>
+        </div>
+
+        {/* Center Content - Pulsing Animation */}
+        <div className="flex flex-col items-center text-center">
+          <div className="relative mb-8">
+             {/* Animated Pulsing Rings */}
+            <div className="absolute inset-0 bg-violet-500 rounded-full animate-ping opacity-20"></div>
+            <div className="relative w-24 h-24 rounded-full bg-violet-600 flex items-center justify-center shadow-[0_0_40px_rgba(139,92,246,0.3)]">
+              <span className="text-4xl">🎮</span>
+            </div>
+          </div>
+          
+          <h1 className="text-3xl font-black mb-3 italic">You're in!</h1>
+          <p className="text-white/50 text-base max-w-[200px]">
+            Check your name on the big screen
+          </p>
+        </div>
+
+        {/* Bottom Status Bar */}
+        <div className="w-full">
+          <div className="flex items-center justify-center gap-3 bg-white/5 py-4 px-6 rounded-full border border-white/5 animate-pulse">
+            <div className="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+            <p className="text-sm font-medium text-white/60">Waiting for host to start...</p>
           </div>
         </div>
       </div>
@@ -339,29 +359,53 @@ function JoinGame() {
 
   // ── JOIN SCREEN ───────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-8">
-      <div className="bg-gray-900 border border-white/10 rounded-3xl p-12 text-center max-w-md w-full">
-        <div className="w-9 h-9 rounded-xl bg-violet-500 flex items-center justify-center text-sm font-bold mx-auto mb-8">Q</div>
-        <h1 className="text-2xl font-bold mb-2">Join Game</h1>
-        <p className="text-white/40 mb-8">Game PIN: <span className="text-white font-bold">{gamePin}</span></p>
-        <input
-          type="text"
-          placeholder="Enter your nickname..."
-          value={nickname}
-          onChange={e => setNickname(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && handleJoin()}
-          maxLength={20}
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/25 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition mb-4"
-        />
-        {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
-        <button
-          onClick={handleJoin}
-          disabled={!nickname.trim()}
-          className="w-full py-3 rounded-xl font-semibold bg-violet-500 hover:bg-violet-400 disabled:opacity-30 disabled:cursor-not-allowed transition"
-        >
-          Join Game!
-        </button>
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col p-6">
+      <div className="flex-1 flex flex-col justify-center items-center">
+        {/* Minimal Logo */}
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center shadow-lg mb-8 rotate-3">
+          <span className="text-2xl font-black italic">Q</span>
+        </div>
+
+        <div className="w-full max-w-sm space-y-6">
+          <div className="text-center">
+            <h1 className="text-4xl font-black tracking-tight mb-2">Join Game</h1>
+            <p className="text-white/40">Enter a nickname to start playing</p>
+          </div>
+
+          <div className="space-y-4">
+             <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Nickname"
+                  value={nickname}
+                  onChange={e => setNickname(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleJoin()}
+                  maxLength={20}
+                  className="w-full bg-gray-900 border-2 border-white/10 rounded-2xl px-6 py-5 text-xl font-bold text-white placeholder-white/20 focus:outline-none focus:border-violet-500 transition-all text-center"
+                />
+             </div>
+
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 py-3 rounded-xl">
+                <p className="text-red-400 text-center text-sm font-medium">{error}</p>
+              </div>
+            )}
+
+            <button
+              onClick={handleJoin}
+              disabled={!nickname.trim()}
+              className="w-full py-5 rounded-2xl font-black text-xl bg-violet-500 hover:bg-violet-400 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-[0_8px_0_rgb(109,40,217)] active:shadow-none active:translate-y-1"
+            >
+              Ready!
+            </button>
+          </div>
+        </div>
       </div>
+      
+      {/* Footer info for mobile users */}
+      <p className="text-center text-white/20 text-[10px] uppercase tracking-widest mt-8">
+        Game PIN: {gamePin}
+      </p>
     </div>
   );
 }
