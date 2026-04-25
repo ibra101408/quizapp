@@ -220,9 +220,15 @@ function HostLobby() {
             ))}
           </div>
 
-          <button onClick={handleNextQuestion} className="w-full py-4 rounded-xl font-bold bg-violet-500 hover:bg-violet-400 transition flex items-center justify-center gap-2">
-            Next Question <ChevronRight />
-          </button>
+          {currentQuestion.questionIndex + 1 < currentQuestion.totalQuestions ? (
+            <button onClick={handleNextQuestion} className="w-full py-4 rounded-xl font-bold bg-violet-500 hover:bg-violet-400 transition flex items-center justify-center gap-2">
+              Next Question <ChevronRight />
+            </button>
+          ) : (
+            <button onClick={handleNextQuestion} className="w-full py-4 rounded-xl font-bold bg-green-500 hover:bg-green-400 transition flex items-center justify-center gap-2">
+              <Trophy size={18} /> Show Final Results
+            </button>
+          )}
         </div>
       </div>
     );
