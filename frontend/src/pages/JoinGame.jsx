@@ -34,6 +34,9 @@ function JoinGame() {
   // Result phase
   const [questionResult, setQuestionResult] = useState(null);
 
+  // Persistent score across questions
+  const [score, setScore] = useState(0);
+
   // Final leaderboard
   const [gameFinished, setGameFinished] = useState(false);
   const [finalLeaderboard, setFinalLeaderboard] = useState([]);
@@ -123,6 +126,7 @@ function JoinGame() {
         answerIds,
       });
       setSubmitResult(response.data);
+      setScore(response.data.totalScore);
     } catch (err) {
       console.error("Failed to submit answer", err);
     }
@@ -198,7 +202,7 @@ function JoinGame() {
           )}
           <div className="bg-gray-900 border border-white/10 rounded-2xl p-5 text-center mb-5">
             <p className="text-white/40 text-sm uppercase tracking-widest mb-1">Total Score</p>
-            <p className="text-4xl font-black text-violet-400">{submitResult ? submitResult.totalScore : "—"}</p>
+            <p className="text-4xl font-black text-violet-400">{score}</p>
             {myPosition && (
               <p className="text-white/40 text-sm mt-1">
                 {myPosition.position <= 3 ? MEDAL[myPosition.position - 1] : `#${myPosition.position}`} in top 5
@@ -238,7 +242,10 @@ function JoinGame() {
               Question {currentQuestion.questionIndex + 1} of {currentQuestion.totalQuestions}
               {isMultiple && <span className="ml-2 text-violet-400 text-xs uppercase tracking-widest">Select all correct</span>}
             </span>
-            <span className={`text-3xl font-black tabular-nums ${timerColor}`}>{timeLeft}s</span>
+            <div className="flex items-center gap-4">
+              <span className="text-violet-400 font-bold tabular-nums">{score} pts</span>
+              <span className={`text-3xl font-black tabular-nums ${timerColor}`}>{timeLeft}s</span>
+            </div>
           </div>
 
           <div className="w-full h-2 bg-white/10 rounded-full mb-8">
