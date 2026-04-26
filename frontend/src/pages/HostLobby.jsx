@@ -5,7 +5,7 @@ import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getToken } from "../services/authService";
 
-const API_URL = "http://localhost:8080/api";
+const API_URL = process.env.REACT_APP_API_URL;
 
 const ANSWER_COLORS = ["bg-red-500", "bg-blue-500", "bg-yellow-500", "bg-green-500"];
 const MEDAL = ["🥇", "🥈", "🥉"];

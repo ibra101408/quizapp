@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyQuizzes, deleteQuiz } from "../services/quizService";
+import { getMyQuizzes, deleteQuiz, createSession } from "../services/quizService";
 
 function MyQuizzes() {
   const navigate = useNavigate();
@@ -30,8 +30,14 @@ function MyQuizzes() {
     setSelectedId(selectedId === quizId ? null : quizId);
   }
 
-  function handlePlay(quiz) {
-    navigate("/HostLobby", { state: { quiz } });
+  async function handlePlay(quiz) {
+    try {
+      const sessionData = await createSession(quiz.id);
+      navigate(`/HostLobby/${sessionData.gamePin}`, { state: { session: sessionData } });
+    } catch (err) {
+      console.error("Failed to start session", err);
+      alert("Could not start game session.");
+    }
   }
 
   function handleModify(quiz) {

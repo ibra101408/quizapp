@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useWebSocket } from "../hooks/useWebSocket";
 
-const API_URL = "http://localhost:8080/api";
+const API_URL = process.env.REACT_APP_API_URL
 
 const ANSWER_COLORS = [
   { base: "bg-red-500",    hover: "hover:bg-red-400",    ring: "ring-red-300",    check: "bg-red-600" },
@@ -33,6 +33,9 @@ function JoinGame() {
 
   // Result phase
   const [questionResult, setQuestionResult] = useState(null);
+
+  // Persistent score across questions
+  const [score, setScore] = useState(0);
 
   // Final leaderboard
   const [gameFinished, setGameFinished] = useState(false);
@@ -124,6 +127,7 @@ function JoinGame() {
         answerIds,
       });
       setSubmitResult(response.data);
+      setScore(response.data.totalScore);
     } catch (err) {
       console.error("Failed to submit answer", err);
     }
@@ -199,7 +203,7 @@ function JoinGame() {
           )}
           <div className="bg-gray-900 border border-white/10 rounded-2xl p-5 text-center mb-5">
             <p className="text-white/40 text-sm uppercase tracking-widest mb-1">Total Score</p>
-            <p className="text-4xl font-black text-violet-400">{submitResult ? submitResult.totalScore : "—"}</p>
+            <p className="text-4xl font-black text-violet-400">{score}</p>
             {myPosition && (
               <p className="text-white/40 text-sm mt-1">
                 {myPosition.position <= 3 ? MEDAL[myPosition.position - 1] : `#${myPosition.position}`} in top 5
@@ -239,6 +243,18 @@ function JoinGame() {
             style={{ width: `${progress}%` }} 
           />
         </div>
+      <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-2xl">
+          <div className="flex justify-between items-center mb-3 text-sm text-white/50">
+            <span>
+              Question {currentQuestion.questionIndex + 1} of {currentQuestion.totalQuestions}
+              {isMultiple && <span className="ml-2 text-violet-400 text-xs uppercase tracking-widest">Select all correct</span>}
+            </span>
+            <div className="flex items-center gap-4">
+              <span className="text-violet-400 font-bold tabular-nums">{score} pts</span>
+              <span className={`text-3xl font-black tabular-nums ${timerColor}`}>{timeLeft}s</span>
+            </div>
+          </div>
 
         {/* Top Section: Question, Media, Timer (Approx 50% height now) */}
         <div className="h-[50%] flex flex-col items-center justify-between p-4 pb-2 text-center relative">
