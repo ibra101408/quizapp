@@ -57,7 +57,7 @@ function Login() {
             <GoogleLogin
               onSuccess={async (credentialResponse) => {
                 try {
-                  const res = await axios.post('http://localhost:8080/api/auth/google', 
+                  const res = await axios.post(`${process.env.REACT_APP_API_URL}/auth/google`,
                     credentialResponse.credential, 
                     { headers: { "Content-Type": "text/plain" } }
                   );
