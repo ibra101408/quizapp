@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { createQuiz, updateQuiz } from "../services/quizService";
+import { createQuiz, updateQuiz, createSession } from "../services/quizService";
 import { useNavigate, useLocation } from "react-router-dom";
 
 function HostCreateGame() {
@@ -109,6 +109,24 @@ function HostCreateGame() {
     }
   }
 
+  async function startGame() {
+    try {
+      let quizId = existingQuiz?.id;
+      if (!quizId || isModified) {
+        const quiz = { title, theme, questions };
+        const response = quizId
+          ? await updateQuiz(quizId, quiz)
+          : await createQuiz(quiz);
+        quizId = response.data.id;
+      }
+      const sessionData = await createSession(quizId);
+      navigate(`/HostLobby/${sessionData.gamePin}`, { state: { session: sessionData } });
+    } catch (err) {
+      console.error("Failed to start session", err);
+      alert("Could not start game session.");
+    }
+  }
+
   // Save changes to existing quiz
   async function saveChanges() {
     const quiz = { title, theme, questions };
@@ -200,8 +218,9 @@ function HostCreateGame() {
           </button>
 
           <button
-            onClick={() => navigate("/HostLobby", { state: { quiz: { title, questions } } })}
-            className="px-4 py-2 text-sm font-semibold rounded-lg bg-violet-500 hover:bg-violet-400 transition-all duration-150 shadow-lg shadow-violet-500/30"
+            onClick={startGame}
+            disabled={!title.trim() || questions.length === 0}
+            className="px-4 py-2 text-sm font-semibold rounded-lg bg-violet-500 hover:bg-violet-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150 shadow-lg shadow-violet-500/30"
           >
             Start Game →
           </button>
