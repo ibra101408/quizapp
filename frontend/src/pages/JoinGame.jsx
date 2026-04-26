@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useWebSocket } from "../hooks/useWebSocket";
 
-const API_URL = "http://localhost:8080/api";
+const API_URL = process.env.REACT_APP_API_URL
 
 const ANSWER_COLORS = [
   { base: "bg-red-500",    hover: "hover:bg-red-400",    ring: "ring-red-300",    check: "bg-red-600" },
