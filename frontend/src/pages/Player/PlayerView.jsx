@@ -21,6 +21,7 @@ export default function PlayerView() {
 
   const [timeLeft, setTimeLeft] = useState(question.timeLimit);
   const [selected, setSelected] = useState([]);
+  const [submitted, setSubmitted] = useState(false);
 
   // TIMER
   useEffect(() => {
@@ -38,6 +39,7 @@ export default function PlayerView() {
   }, []);
 
   const handleSelect = (id) => {
+    if (submitted) return;
     if (question.multipleCorrect) {
       setSelected((prev) =>
         prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -45,6 +47,11 @@ export default function PlayerView() {
     } else {
       setSelected([id]);
     }
+  };
+
+  const handleSubmit = () => {
+    if (selected.length === 0 || submitted) return;
+    setSubmitted(true);
   };
 
   const colors = [
@@ -117,9 +124,28 @@ export default function PlayerView() {
               color={colors[index]}
               selected={selected.includes(answer.id)}
               onClick={() => handleSelect(answer.id)}
+              disabled={submitted}
             />
           ))}
         </div>
+
+        {/* SUBMIT / LOCKED STATE */}
+        <div className="mt-6">
+          {submitted ? (
+            <div className="w-full py-4 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 font-semibold text-center">
+              Answer submitted — waiting for results...
+            </div>
+          ) : (
+            <button
+              onClick={handleSubmit}
+              disabled={selected.length === 0}
+              className="w-full py-4 rounded-xl font-bold bg-[#A78BFA] hover:bg-[#9061f9] disabled:opacity-30 disabled:cursor-not-allowed transition text-black"
+            >
+              Submit
+            </button>
+          )}
+        </div>
+
         {/* FOOTER */}
         <div className="mt-auto text-center text-xs text-white/30 pt-6">
           Choose wisely
