@@ -40,9 +40,7 @@ function HostCreateGame() {
 
   function toggleCorrect(index) {
     if (questionType === "truefalse") {
-      // Only True (index 0) can be marked correct
-      if (index !== 0) return;
-      setCorrect([0]);
+      setCorrect([index]);
     } else {
       if (correct.includes(index)) {
         setCorrect(correct.filter((i) => i !== index));
@@ -375,10 +373,11 @@ function HostCreateGame() {
                 const color = answerColors[i];
                 const isCorrect = correct.includes(i);
                 return (
-                    <div key={i} onClick={() => questionType === "truefalse" && i === 1 ? null : toggleCorrect(i)}
-                         style={questionType === "truefalse" && i === 1 ? { cursor: "default" } : {}}
-                    className={`relative rounded-xl border-2 p-3 cursor-pointer transition-all duration-150 ${isCorrect ? `${color.border} ${color.bg}` : "border-white/10 bg-white/5 hover:border-white/20"}`}
-                  >
+                    <div 
+                      key={i} 
+                      onClick={() => toggleCorrect(i)}
+                      className={`relative rounded-xl border-2 p-3 cursor-pointer transition-all duration-150 ${isCorrect ? `${color.border} ${color.bg}` : "border-white/10 bg-white/5 hover:border-white/20"}`}
+                    >
                     <div className="flex items-center gap-2 mb-2">
                       <span className={`w-6 h-6 rounded-md text-xs font-bold flex items-center justify-center text-white ${isCorrect ? color.activeBg : "bg-white/10"}`}>
                         {answerLabels[i]}
@@ -387,7 +386,7 @@ function HostCreateGame() {
                     </div>
                     <div className="flex items-center gap-2">
                       <input
-                          className={`w-full bg-transparent text-sm focus:outline-none placeholder-white/30 ${isCorrect ? "text-black" : "text-white"} ${questionType === "truefalse" ? "cursor-default select-none" : ""}`}
+                          className={`w-full bg-transparent text-sm focus:outline-none placeholder-white/30 ${isCorrect ? "text-black" : "text-white"}`}
                           placeholder={`Answer ${answerLabels[i]}...`}
                           value={a}
                           readOnly={questionType === "truefalse"}
