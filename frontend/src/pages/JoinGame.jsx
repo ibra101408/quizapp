@@ -236,57 +236,48 @@ function JoinGame() {
 
     return (
       <div className="fixed inset-0 bg-gray-950 text-white flex flex-col overflow-hidden">
-        {/* Progress Bar - Top of screen */}
+        {/* 1. Progress Bar */}
         <div className="absolute top-0 left-0 w-full h-1.5 bg-white/10 z-50">
           <div 
             className="h-full bg-violet-500 transition-all duration-1000 ease-linear" 
             style={{ width: `${progress}%` }} 
           />
         </div>
-      <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-6">
-        <div className="w-full max-w-2xl">
-          <div className="flex justify-between items-center mb-3 text-sm text-white/50">
-            <span>
-              Question {currentQuestion.questionIndex + 1} of {currentQuestion.totalQuestions}
-              {isMultiple && <span className="ml-2 text-violet-400 text-xs uppercase tracking-widest">Select all correct</span>}
-            </span>
-            <div className="flex items-center gap-4">
-              <span className="text-violet-400 font-bold tabular-nums">{score} pts</span>
-              <span className={`text-3xl font-black tabular-nums ${timerColor}`}>{timeLeft}s</span>
-            </div>
-          </div>
 
-        {/* Top Section: Question, Media, Timer (Approx 50% height now) */}
+        {/* 2. Top Section: Hero Image & Question Text */}
         <div className="h-[50%] flex flex-col items-center justify-between p-4 pb-2 text-center relative">
           
-          {/* Info bar (Question X of Y) */}
-          <div className="flex justify-between w-full z-10 px-2 mt-2">
+          {/* Info bar: Question Counter & Current Total Score */}
+          <div className="flex justify-between items-center w-full z-10 px-2 mt-2">
             <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
               {currentQuestion.questionIndex + 1} / {currentQuestion.totalQuestions}
+            </span>
+            <span className="text-violet-400 font-bold tabular-nums text-sm">
+              {score} pts
             </span>
           </div>
 
           {/* Hero Image Container */}
           {currentQuestion.imageUrl && (
             <div className="absolute inset-x-4 top-14 bottom-12 rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl z-0">
-               {/* Animated Timer Overlay */}
+               {/* Timer Overlay */}
                <div className="absolute top-3 right-3 bg-gray-950/70 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10 z-10">
                  <span className={`text-4xl font-black tabular-nums ${timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
                    {timeLeft}
                  </span>
                </div>
-
               <img src={currentQuestion.imageUrl} alt="" className="w-full h-full object-contain bg-black/30" />
             </div>
           )}
 
-          {/* Question Text (Stays visible even if no image) */}
+          {/* Question Text */}
           <h2 className="text-xl md:text-2xl font-bold leading-tight z-10 mt-auto pb-1 px-4 drop-shadow-md">
             {currentQuestion.text}
+            {isMultiple && <span className="block text-violet-400 text-[10px] uppercase tracking-[0.2em] mt-1">Multi-Select</span>}
           </h2>
         </div>
 
-        {/* Bottom Section: Answer Buttons (The "Kahoot" Grid - 50% height) */}
+        {/* 3. Bottom Section: Huge Answer Buttons */}
         <div className="h-[50%] grid grid-cols-2 grid-rows-2 gap-2 p-2 pb-6">
           {currentQuestion.answers.map((answer, i) => {
             const colors = ANSWER_COLORS[i % 4];
@@ -327,7 +318,7 @@ function JoinGame() {
           })}
         </div>
 
-        {/* Overlays (Multi-Select, Waiting) - Keep these as they were */}
+        {/* 4. Submission Button for Multi-Select */}
         {isMultiple && !submitted && selectedAnswers.size > 0 && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%] z-20">
             <button
@@ -339,12 +330,13 @@ function JoinGame() {
           </div>
         )}
 
+        {/* 5. "Answer Received" Waiting Overlay */}
         {submitted && !questionResult && (
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-30">
              <div className="text-center p-6 bg-gray-900 rounded-3xl border border-white/10 shadow-2xl">
                 <div className="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
                 <p className="text-lg font-bold">Answer Received!</p>
-                <p className="text-white/40 text-sm mt-1">Waiting for others to finish...</p>
+                <p className="text-white/40 text-sm mt-1">Waiting for others...</p>
              </div>
           </div>
         )}
