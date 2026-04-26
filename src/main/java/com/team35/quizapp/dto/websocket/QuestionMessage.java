@@ -4,7 +4,8 @@ import java.util.List;
 
 public record QuestionMessage(
         Long questionId,
-        String text,
+        String text,       
+        String imageUrl,
         Integer timeLimit,
         Integer questionIndex,
         Integer totalQuestions,

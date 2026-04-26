@@ -51,6 +51,7 @@ function JoinGame() {
   }, []);
 
   const onQuestion = useCallback((question) => {
+    console.log("New question received", question);
     // Shuffle answers so each player sees a different order
     const shuffled = [...question.answers].sort(() => Math.random() - 0.5);
     setCurrentQuestion({ ...question, answers: shuffled });
@@ -227,93 +228,114 @@ function JoinGame() {
   // ── QUESTION PHASE ────────────────────────────────────────────────────────
   if (joined && currentQuestion) {
     const progress = timeLeft !== null ? (timeLeft / currentQuestion.timeLimit) * 100 : 0;
-    const timerColor = timeLeft <= 5 ? "text-red-400" : "text-white";
     const isMultiple = currentQuestion.multipleCorrect;
 
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-6">
-        <div className="w-full max-w-2xl">
-          <div className="flex justify-between items-center mb-3 text-sm text-white/50">
-            <span>
-              Question {currentQuestion.questionIndex + 1} of {currentQuestion.totalQuestions}
-              {isMultiple && <span className="ml-2 text-violet-400 text-xs uppercase tracking-widest">Select all correct</span>}
+      <div className="fixed inset-0 bg-gray-950 text-white flex flex-col overflow-hidden">
+        {/* Progress Bar - Top of screen */}
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-white/10 z-50">
+          <div 
+            className="h-full bg-violet-500 transition-all duration-1000 ease-linear" 
+            style={{ width: `${progress}%` }} 
+          />
+        </div>
+
+        {/* Top Section: Question, Media, Timer (Approx 50% height now) */}
+        <div className="h-[50%] flex flex-col items-center justify-between p-4 pb-2 text-center relative">
+          
+          {/* Info bar (Question X of Y) */}
+          <div className="flex justify-between w-full z-10 px-2 mt-2">
+            <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+              {currentQuestion.questionIndex + 1} / {currentQuestion.totalQuestions}
             </span>
-            <span className={`text-3xl font-black tabular-nums ${timerColor}`}>{timeLeft}s</span>
           </div>
 
-          <div className="w-full h-2 bg-white/10 rounded-full mb-8">
-            <div className="h-full bg-violet-500 rounded-full transition-all duration-1000 ease-linear" style={{ width: `${progress}%` }} />
-          </div>
-
+          {/* Hero Image Container */}
           {currentQuestion.imageUrl && (
-            <img src={currentQuestion.imageUrl} alt="" className="w-full max-h-52 object-cover rounded-2xl mb-6" />
+            <div className="absolute inset-x-4 top-14 bottom-12 rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl z-0">
+               {/* Animated Timer Overlay */}
+               <div className="absolute top-3 right-3 bg-gray-950/70 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10 z-10">
+                 <span className={`text-4xl font-black tabular-nums ${timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
+                   {timeLeft}
+                 </span>
+               </div>
+
+              <img src={currentQuestion.imageUrl} alt="" className="w-full h-full object-contain bg-black/30" />
+            </div>
           )}
 
-          <h2 className="text-white text-2xl font-semibold text-center mb-8 leading-snug">
+          {/* Question Text (Stays visible even if no image) */}
+          <h2 className="text-xl md:text-2xl font-bold leading-tight z-10 mt-auto pb-1 px-4 drop-shadow-md">
             {currentQuestion.text}
           </h2>
+        </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {currentQuestion.answers.map((answer, i) => {
-              const colors = ANSWER_COLORS[i % 4];
-              if (isMultiple) {
-                const isSelected = selectedAnswers.has(answer.id);
-                return (
-                  <button
-                    key={answer.id}
-                    disabled={submitted || timeLeft === 0}
-                    onClick={() => toggleMultiAnswer(answer.id)}
-                    className={`${colors.base} ${colors.hover} ${isSelected ? `ring-4 ${colors.ring} scale-95` : "opacity-80"}
-                      text-white font-semibold py-7 px-4 rounded-2xl text-base
-                      transition-all duration-150 disabled:cursor-not-allowed
-                      flex items-center gap-3`}
-                  >
-                    <span className={`w-5 h-5 rounded border-2 border-white/60 flex-shrink-0 flex items-center justify-center ${isSelected ? "bg-white" : ""}`}>
-                      {isSelected && <span className="text-gray-900 text-xs font-black">✓</span>}
-                    </span>
-                    {answer.text}
-                  </button>
-                );
-              } else {
-                const isSelected = selectedAnswer === answer.id;
-                return (
-                  <button
-                    key={answer.id}
-                    disabled={submitted || timeLeft === 0}
-                    onClick={() => handleSingleAnswer(answer.id)}
-                    className={`${colors.base} ${colors.hover} ${isSelected ? `ring-4 ${colors.ring} scale-95` : "opacity-90"}
-                      text-white font-semibold py-7 px-4 rounded-2xl text-base
-                      transition-all duration-150 disabled:cursor-not-allowed`}
-                  >
-                    {answer.text}
-                  </button>
-                );
-              }
-            })}
-          </div>
+        {/* Bottom Section: Answer Buttons (The "Kahoot" Grid - 50% height) */}
+        <div className="h-[50%] grid grid-cols-2 grid-rows-2 gap-2 p-2 pb-6">
+          {currentQuestion.answers.map((answer, i) => {
+            const colors = ANSWER_COLORS[i % 4];
+            const isSelected = isMultiple ? selectedAnswers.has(answer.id) : selectedAnswer === answer.id;
 
-          {/* Submit button for multiple correct */}
-          {isMultiple && !submitted && (
+            return (
+              <button
+                key={answer.id}
+                disabled={submitted || timeLeft === 0}
+                onClick={() => isMultiple ? toggleMultiAnswer(answer.id) : handleSingleAnswer(answer.id)}
+                className={`
+                  relative flex flex-col items-center justify-center p-4 rounded-xl transition-all active:scale-95
+                  ${colors.base} 
+                  ${isSelected ? 'ring-8 ring-white/30 z-10 scale-95 shadow-inner' : 'opacity-100'}
+                  ${submitted && !isSelected ? 'opacity-40 grayscale-[0.5]' : ''}
+                  disabled:cursor-not-allowed
+                `}
+              >
+                {/* Kahoot-style icons */}
+                <div className="absolute top-3 left-3 opacity-30">
+                  {i === 0 && <div className="w-6 h-6 border-4 border-white rotate-45" />}
+                  {i === 1 && <div className="w-6 h-6 border-4 border-white rounded-full" />}
+                  {i === 2 && <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-white" />}
+                  {i === 3 && <div className="w-6 h-6 border-4 border-white" />}
+                </div>
+
+                <span className="text-xl font-black text-center drop-shadow-md">
+                  {answer.text}
+                </span>
+
+                {isSelected && (
+                  <div className="absolute bottom-3 right-3 bg-white text-gray-900 rounded-full w-6 h-6 flex items-center justify-center font-black animate-bounce">
+                    ✓
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Overlays (Multi-Select, Waiting) - Keep these as they were */}
+        {isMultiple && !submitted && selectedAnswers.size > 0 && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%] z-20">
             <button
               onClick={handleMultiSubmit}
-              disabled={selectedAnswers.size === 0 || timeLeft === 0}
-              className="w-full mt-6 py-4 rounded-xl font-bold bg-violet-500 hover:bg-violet-400 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              className="w-full py-4 bg-white text-black font-black rounded-2xl shadow-2xl animate-bounce"
             >
-              Submit {selectedAnswers.size > 0 ? `(${selectedAnswers.size} selected)` : ""}
+              SUBMIT {selectedAnswers.size}
             </button>
-          )}
+          </div>
+        )}
 
-          {submitted && !questionResult && (
-            <p className="text-center text-white/40 text-sm mt-6">✓ Answer submitted — waiting for results</p>
-          )}
-          {timeLeft === 0 && !submitted && (
-            <p className="text-center text-red-400/70 text-sm mt-6">Time's up!</p>
-          )}
-        </div>
+        {submitted && !questionResult && (
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-30">
+             <div className="text-center p-6 bg-gray-900 rounded-3xl border border-white/10 shadow-2xl">
+                <div className="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-lg font-bold">Answer Received!</p>
+                <p className="text-white/40 text-sm mt-1">Waiting for others to finish...</p>
+             </div>
+          </div>
+        )}
       </div>
     );
   }
-
+  
   // ── WAITING PHASE ─────────────────────────────────────────────────────────
   if (joined) {
     return (

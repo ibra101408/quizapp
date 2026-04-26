@@ -103,6 +103,7 @@ public class WebSocketController {
         QuestionMessage questionMessage = new QuestionMessage(
                 currentSq.getQuestion().getId(),
                 currentSq.getQuestion().getText(),
+                currentSq.getQuestion().getImageUrl(),
                 currentSq.getQuestion().getTimeLimit(),
                 session.getCurrentQuestionIndex(),
                 session.getSessionQuestions().size(),
