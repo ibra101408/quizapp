@@ -42,11 +42,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         try {
             String token = authHeader.substring(7);
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+            Claims claims = Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
 
             String email = claims.getSubject();
 

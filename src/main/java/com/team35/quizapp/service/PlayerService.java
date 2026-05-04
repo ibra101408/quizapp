@@ -2,6 +2,7 @@ package com.team35.quizapp.service;
 
 import com.team35.quizapp.config.WebSocketSessionCache;
 import com.team35.quizapp.controller.WebSocketController;
+import com.team35.quizapp.dto.PlayerStateDto;
 import com.team35.quizapp.dto.game.AnswerSubmitResponse;
 import com.team35.quizapp.dto.game.SubmitAnswerRequest;
 import com.team35.quizapp.entity.Answer;
@@ -23,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,6 +41,7 @@ public class PlayerService {
     private final AnswerRepository answerRepository;
     private final WebSocketSessionCache sessionCache;
     private final WebSocketController webSocketController;
+    private final PlayerStateService playerStateService;
 
     public void kickPlayer(Integer gamePin, String nickname) {
         Player player = playerRepository.findByGameSessionGamePinAndNickname(gamePin, nickname)
@@ -119,7 +122,21 @@ public class PlayerService {
         log.info("Answer saved: pin={}, nickname={}, fullyCorrect={}, score={}, responseTime={}s",
                 gamePin, request.nickname(), fullyCorrect, score, responseTime);
 
+        PlayerStateDto state = new PlayerStateDto(
+        session.getId(),
+        player.getId(),
+        true,
+        new HashMap<>()
+);
+
+playerStateService.saveState(state);
+
+
+        
+
         return new AnswerSubmitResponse(fullyCorrect, score, player.getScore());
+
+        
     }
 
     /**

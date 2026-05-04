@@ -1,5 +1,6 @@
 package com.team35.quizapp.controller;
 
+import com.team35.quizapp.dto.PlayerStateDto;
 import com.team35.quizapp.dto.game.AnswerSubmitResponse;
 import com.team35.quizapp.dto.game.GameSessionResponse;
 import com.team35.quizapp.dto.game.StartGameRequest;
@@ -70,4 +71,21 @@ public class GameSessionController {
                 .getContext().getAuthentication().getName();
         gameSessionService.endGame(gamePin, email);
     }
+
+    @GetMapping("/session/{pin}/state/{playerId}")
+public PlayerStateDto getState(
+        @PathVariable Integer pin,
+        @PathVariable Long playerId
+) {
+    return gameSessionService.getPlayerState(pin, playerId);
+}
+
+@GetMapping("/{gamePin}/state/{playerId}")
+public PlayerStateDto getPlayerState(
+        @PathVariable Integer gamePin,
+        @PathVariable Long playerId
+) {
+    return gameSessionService.getPlayerState(gamePin, playerId);
+}
+
 }
