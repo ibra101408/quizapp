@@ -1,5 +1,6 @@
 package com.team35.quizapp.service;
 
+import com.team35.quizapp.dto.PlayerStateDto;
 import com.team35.quizapp.dto.game.AnswerDto;
 import com.team35.quizapp.dto.game.GameSessionResponse;
 import com.team35.quizapp.dto.game.QuestionDto;
@@ -22,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.time.LocalDateTime;
@@ -35,6 +37,7 @@ public class GameSessionService {
     private final QuizRepository quizRepository;
     private final PlayerRepository playerRepository;
     private final WebSocketController webSocketController;
+    private final PlayerStateService playerStateService;
 
     @Transactional
     public GameSessionResponse createSession(StartGameRequest request, String email) {
@@ -197,7 +200,7 @@ public class GameSessionService {
                 ))
                 .toList();
 
-        return new GameSessionResponse(
+               return new GameSessionResponse(
                 session.getId(),
                 session.getGamePin(),
                 session.getQuiz().getId(),
@@ -217,4 +220,19 @@ public class GameSessionService {
         } while (gameSessionRepository.findByGamePin(pin).isPresent());
         return pin;
     }
+
+
+    public PlayerStateDto getPlayerState(Integer gamePin, Long playerId) {
+
+    GameSession session = gameSessionRepository.findByGamePin(gamePin)
+            .orElseThrow(() -> new RuntimeException("Session not found"));
+
+    PlayerStateDto state = playerStateService.getState(session.getId(), playerId);
+
+    if (state == null) {
+        return new PlayerStateDto(session.getId(), playerId, false, new HashMap<>());
+    }
+
+    return state;
+}
 }

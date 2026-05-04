@@ -13,7 +13,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-quizapp_user} -d ${POSTGRES_DB:-quizapp}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-quizapp_user} -d
+            ${POSTGRES_DB:-quizapp}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,9 +41,11 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       JWT_SECRET: ${JWT_SECRET:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30}
+      SPRING_REDIS_HOST: redis
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+      - redis
+
     restart: on-failure
 
   # ---- React Frontend ----
@@ -54,6 +61,12 @@ services:
       - "3000:80"
     depends_on:
       - backend
+  redis:
+    image: redis:7
+    container_name: quizapp-redis
+    ports:
+      - "6379:6379"
 
 volumes:
   postgres_data:
+
