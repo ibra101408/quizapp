@@ -333,10 +333,15 @@ function JoinGame() {
     );
   }
 
-  // ── QUESTION PHASE ────────────────────────────────────────────────────────
+ // ── QUESTION PHASE ────────────────────────────────────────────────────────
   if (joined && currentQuestion) {
     const progress = timeLeft !== null ? (timeLeft / currentQuestion.timeLimit) * 100 : 0;
     const isMultiple = currentQuestion.multipleCorrect;
+    const answerCount = currentQuestion.answers.length;
+
+    // Dynamic Layout: If > 4 answers, give more space to the grid
+    const topHeightClass = answerCount > 4 ? "h-[25%]" : "h-[45%]";
+    const bottomHeightClass = answerCount > 4 ? "h-[75%]" : "h-[55%]";
 
     return (
       <div className="fixed inset-0 bg-gray-950 text-white flex flex-col overflow-hidden">
@@ -349,46 +354,45 @@ function JoinGame() {
         </div>
 
         {/* 2. Top Section: Hero Image & Question Text */}
-        <div className="h-[50%] flex flex-col items-center justify-between p-4 pb-2 text-center relative">
+        {/* FIXED: Changed h-[50%] to ${topHeightClass} */}
+        <div className={`${topHeightClass} flex flex-col items-center justify-between p-4 pb-2 text-center relative transition-all duration-500`}>
           
-          {/* Info bar: Question Counter & Current Total Score */}
-          <div className="flex justify-between items-center w-full z-10 px-2 mt-2">
-            <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
-              {currentQuestion.questionIndex + 1} / {currentQuestion.totalQuestions}
-            </span>
-            <div className="flex items-center gap-3">
-              {muteButton}
-              <span className="text-violet-400 font-bold tabular-nums text-sm">
-                {score} pts
+          <div className="z-10 w-full">
+            <div className="flex justify-between items-center w-full px-2 mt-2">
+              <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                {currentQuestion.questionIndex + 1} / {currentQuestion.totalQuestions}
               </span>
+              <div className="flex items-center gap-3">
+                {muteButton}
+                <span className="text-violet-400 font-bold tabular-nums text-sm">
+                  {score} pts
+                </span>
+              </div>
             </div>
+          
+            <h2 className={`${answerCount > 4 ? 'text-lg' : 'text-xl'} font-bold leading-tight text-center drop-shadow-md mt-2`}>
+              {currentQuestion.text}
+              {isMultiple && <span className="block text-violet-400 text-[10px] uppercase tracking-[0.2em] mt-1">Multi-Select</span>}
+            </h2>
           </div>
 
-          {/* Hero Image Container */}
           {currentQuestion.imageUrl && (
-            <div className="absolute inset-x-4 top-14 bottom-12 rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl z-0">
-               {/* Timer Overlay */}
-               <div className="absolute top-3 right-3 bg-gray-950/70 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10 z-10">
-                 <span className={`text-4xl font-black tabular-nums ${timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
+            <div className="flex-1 relative rounded-2xl overflow-hidden shadow-2xl z-0 mt-2 w-full max-w-xs mx-auto">
+               <div className="absolute top-2 right-2 bg-gray-950/70 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10 z-10">
+                 <span className={`${answerCount > 4 ? 'text-xl' : 'text-3xl'} font-black tabular-nums ${timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
                    {timeLeft}
                  </span>
                </div>
               <img src={currentQuestion.imageUrl} alt="" className="w-full h-full object-contain bg-black/30" />
             </div>
           )}
-
-          {/* Question Text */}
-          <h2 className="text-2xl md:text-3xl font-bold leading-tight z-10 mt-auto pb-1 px-4 drop-shadow-md">
-            {currentQuestion.text}
-            {isMultiple && <span className="block text-violet-400 text-[10px] uppercase tracking-[0.2em] mt-1">Multi-Select</span>}
-          </h2>
         </div>
 
-        {/* 3. Bottom Section: Answer Buttons + Submit (when multi-select) */}
-        <div className="h-[50%] flex flex-col p-2 gap-2">
-          <div className={`flex-1 min-h-0 grid grid-cols-2 ${answerRowsClass(currentQuestion.answers.length)} gap-2`}>
+        {/* 3. Bottom Section: Answer Buttons */}
+        <div className={`${bottomHeightClass} flex flex-col p-3 gap-2 transition-all duration-500`}>
+          <div className={`flex-1 min-h-0 grid grid-cols-2 ${answerRowsClass(answerCount)} gap-3`}>
             {currentQuestion.answers.map((answer, i) => {
-              const colors = ANSWER_COLORS[i % 4];
+              const colors = ANSWER_COLORS[i % 10];
               const isSelected = isMultiple ? selectedAnswers.has(answer.id) : selectedAnswer === answer.id;
 
             return (
@@ -397,24 +401,28 @@ function JoinGame() {
                 disabled={submitted || timeLeft === 0}
                 onClick={() => isMultiple ? toggleMultiAnswer(answer.id) : handleSingleAnswer(answer.id)}
                 className={`
-                  relative flex flex-col items-center justify-center p-4 rounded-xl transition-all active:scale-95 touch-manipulation
+                  relative flex flex-col items-center justify-center p-2 rounded-2xl transition-all active:scale-95 touch-manipulation overflow-hidden
                   ${colors.base} 
-                  ${isSelected ? 'ring-8 ring-white/30 z-10 scale-95 shadow-inner' : 'opacity-100'}
+                  ${isSelected ? 'ring-4 ring-white/60 z-10 scale-95 shadow-inner' : 'opacity-100'}
                   ${submitted && !isSelected ? 'opacity-40 grayscale-[0.5]' : ''}
                   disabled:cursor-not-allowed
                 `}
               >
-                {/* Unique shape per answer slot */}
-                <div className="absolute top-3 left-3 opacity-40">
+                {/* Visual Shape */}
+                <div className="absolute top-2 left-2 opacity-20">
                   <AnswerShape index={i} />
                 </div>
 
-                <span className="text-base sm:text-lg font-bold text-center leading-tight px-2 break-words drop-shadow-md">
+                {/* FIXED: Dynamic text scaling and line height */}
+                <span className={`
+                  ${answerCount > 6 ? 'text-[10px]' : answerCount > 4 ? 'text-xs' : 'text-sm'} 
+                  font-bold text-center leading-snug px-2 break-words drop-shadow-md w-full
+                `}>
                   {answer.text}
                 </span>
 
                 {isSelected && (
-                  <div className="absolute bottom-3 right-3 bg-white text-gray-900 rounded-full w-6 h-6 flex items-center justify-center font-black animate-bounce">
+                  <div className="absolute bottom-2 right-2 bg-white text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-black">
                     ✓
                   </div>
                 )}
@@ -423,24 +431,23 @@ function JoinGame() {
             })}
           </div>
 
-          {/* 4. Submit Button for Multi-Select — takes real space, doesn't cover answers */}
           {isMultiple && !submitted && selectedAnswers.size > 0 && (
               <button
                   onClick={handleMultiSubmit}
-                  className="shrink-0 w-full py-4 bg-white text-black font-black rounded-2xl shadow-2xl animate-bounce text-lg"
+                  className="shrink-0 w-full py-3 bg-white text-black font-black rounded-2xl shadow-xl animate-bounce text-md mb-2"
               >
                 SUBMIT {selectedAnswers.size}
               </button>
           )}
         </div>
 
-        {/* 5. "Answer Received" Waiting Overlay */}
+        {/* Overlay remains the same */}
         {submitted && !questionResult && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-30">
-             <div className="text-center p-6 bg-gray-900 rounded-3xl border border-white/10 shadow-2xl">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[60]">
+             <div className="text-center p-8 bg-gray-900 rounded-3xl border border-white/10 shadow-2xl">
                 <div className="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-lg font-bold">Answer Received!</p>
-                <p className="text-white/40 text-sm mt-1">Waiting for others...</p>
+                <p className="text-xl font-bold">Answer Received!</p>
+                <p className="text-white/40 text-sm mt-1">Check the big screen...</p>
              </div>
           </div>
         )}
