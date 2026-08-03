@@ -33,7 +33,8 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       ALLOWED_ORIGIN: ${ALLOWED_ORIGIN}
     expose:
-      - "8080"
+      - "8081"
+      
 
   frontend:
     build:

@@ -28,8 +28,8 @@ WORKDIR /app
 # Copy the built JAR file from the builder stage
 COPY --from=builder /app/target/*.jar app.jar
 
-# Expose port 8080 (Spring Boot default)
-EXPOSE 8080
+# Expose port 8081 (Spring Boot default)
+EXPOSE 8081
 
 # Start the app
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -24,7 +24,7 @@ services:
       context: .
     container_name: quizapp-backend
     ports:
-      - "8080:8080"
+      - "8081:8081"
     environment:
       DB_URL: jdbc:postgresql://db:5432/quizapp
       DB_USERNAME: ${DB_USERNAME:-quizapp_user}

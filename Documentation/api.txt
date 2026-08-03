@@ -1,7 +1,7 @@
   POST /api/users — Create user
 
   - Method: POST
-  - URL: http://localhost:8080/api/users
+  - URL: http://localhost:8081/api/users
   - Headers: Content-Type: application/json
   - Body (raw JSON):
   {
@@ -15,7 +15,7 @@
   GET /api/users/{id} — Get user
 
   - Method: GET
-  - URL: http://localhost:8080/api/users/1
+  - URL: http://localhost:8081/api/users/1
 
   Expected: 200 OK + user JSON
 
@@ -23,7 +23,7 @@
   PUT /api/users/{id} — Update user
 
   - Method: PUT
-  - URL: http://localhost:8080/api/users/1
+  - URL: http://localhost:8081/api/users/1
   - Headers: Content-Type: application/json
   - Body:
   {
@@ -35,6 +35,6 @@
   DELETE /api/users/{id} — Delete user
 
   - Method: DELETE
-  - URL: http://localhost:8080/api/users/1
+  - URL: http://localhost:8081/api/users/1
 
   Expected: 204 No Content (empty body)
