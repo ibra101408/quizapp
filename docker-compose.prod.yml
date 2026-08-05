@@ -34,7 +34,7 @@ services:
       ALLOWED_ORIGIN: ${ALLOWED_ORIGIN}
     expose:
       - "8081"
-      
+
 
   frontend:
     build:
@@ -48,7 +48,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "80:80"
+      - "81:80"
       - "443:443"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
