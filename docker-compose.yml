@@ -51,7 +51,7 @@ services:
       - REACT_APP_GOOGLE_CLIENT_ID=${REACT_APP_GOOGLE_CLIENT_ID}
     container_name: quizapp-frontend
     ports:
-      - "3000:80"
+      - "3001:80"
     depends_on:
       - backend
 

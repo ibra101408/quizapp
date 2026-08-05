@@ -59,8 +59,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                System.getenv().getOrDefault("ALLOWED_ORIGIN", "http://localhost:3000")
+                "http://localhost:3001",
+                System.getenv().getOrDefault("ALLOWED_ORIGIN", "http://localhost:3001")
         ));
         // Standard headers for React apps
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
