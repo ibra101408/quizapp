@@ -16,6 +16,6 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/quizapp
+            cd /var/www/quizapp
             git pull
             docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build --force-recreate
